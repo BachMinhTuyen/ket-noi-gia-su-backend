@@ -1,40 +1,42 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE "PaymentStatus" (
-  "statusId" VARCHAR(10) PRIMARY KEY,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "code" VARCHAR(20) UNIQUE NOT NULL,
   "name" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "ScheduleStatus" (
-  "statusId" VARCHAR(10) PRIMARY KEY,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "code" VARCHAR(20) UNIQUE NOT NULL,
   "name" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "StudentRequestStatus" (
-  "statusId" VARCHAR(10) PRIMARY KEY,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "code" VARCHAR(20) UNIQUE NOT NULL,
   "name" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "TutorApplicationStatus" (
-  "statusId" VARCHAR(10) PRIMARY KEY,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "code" VARCHAR(20) UNIQUE NOT NULL,
   "name" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "ClassStatus" (
-  "statusId" VARCHAR(10) PRIMARY KEY,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "code" VARCHAR(20) UNIQUE NOT NULL,
   "name" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "Role" (
-  "roleId" VARCHAR(10) PRIMARY KEY,
+  "roleId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "roleName" VARCHAR(20)
 );
 
 CREATE TABLE "User" (
-  "userId" VARCHAR(50) PRIMARY KEY,
+  "userId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "username" VARCHAR(50) NOT NULL,
   "password" VARCHAR(255) NOT NULL,
   "fullName" VARCHAR(50) NOT NULL,
@@ -44,13 +46,13 @@ CREATE TABLE "User" (
   "email" VARCHAR(50),
   "avatarUrl" TEXT,
   "averageRating" DECIMAL(3,2) DEFAULT 5,
-  "roleId" VARCHAR(10) NOT NULL,
+  "roleId" UUID NOT NULL,
   "isVerified" BOOL DEFAULT 'False'
 );
 
 CREATE TABLE "StudentProfile" (
-  "studentId" VARCHAR(50) PRIMARY KEY,
-  "userId" VARCHAR(50) NOT NULL,
+  "studentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID NOT NULL,
   "gradeLevel" VARCHAR(20),
   "learningGoals" TEXT,
   "preferredStudyTime" TEXT,
@@ -58,8 +60,8 @@ CREATE TABLE "StudentProfile" (
 );
 
 CREATE TABLE "TutorProfile" (
-  "tutorId" VARCHAR(50) PRIMARY KEY,
-  "userId" VARCHAR(50) NOT NULL,
+  "tutorId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID NOT NULL,
   "degree" VARCHAR(100),
   "certificate" VARCHAR(100),
   "experience" VARCHAR(255),
@@ -69,8 +71,8 @@ CREATE TABLE "TutorProfile" (
 );
 
 CREATE TABLE "UserSocialAccount" (
-  "socialAccountId" VARCHAR(50) PRIMARY KEY,
-  "userId" VARCHAR(50) NOT NULL,
+  "socialAccountId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID NOT NULL,
   "provider" VARCHAR(20),
   "providerUserId" VARCHAR(100),
   "email" VARCHAR(100),
@@ -78,69 +80,69 @@ CREATE TABLE "UserSocialAccount" (
 );
 
 CREATE TABLE "Subject" (
-  "subjectId" VARCHAR(50) PRIMARY KEY,
+  "subjectId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "subjectName_vi" VARCHAR(100),
   "subjectName_en" VARCHAR(100),
   "description" VARCHAR(255)
 );
 
 CREATE TABLE "StudentRequest" (
-  "requestId" VARCHAR(50) PRIMARY KEY,
-  "studentId" VARCHAR(50) NOT NULL,
-  "subjectId" VARCHAR(50) NOT NULL,
+  "requestId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "studentId" UUID NOT NULL,
+  "subjectId" UUID NOT NULL,
   "studyType" VARCHAR(20),
   "preferredSchedule" TEXT,
   "tuitionFee" DECIMAL(10,2),
   "location" VARCHAR(100),
   "description" TEXT,
-  "status" VARCHAR(20) NOT NULL DEFAULT 'Pending'
+  "status" UUID NOT NULL
 );
 
 CREATE TABLE "TutorApplication" (
-  "applicationId" VARCHAR(50) PRIMARY KEY,
-  "tutorId" VARCHAR(50) NOT NULL,
-  "requestId" VARCHAR(50) NOT NULL,
+  "applicationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "tutorId" UUID NOT NULL,
+  "requestId" UUID NOT NULL,
   "applicationDate" TIMESTAMP,
-  "status" VARCHAR(20) NOT NULL DEFAULT 'Pending'
+  "status" UUID NOT NULL
 );
 
 CREATE TABLE "Class" (
-  "classId" VARCHAR(50) PRIMARY KEY,
-  "createdBy" VARCHAR(50) NOT NULL,  
+  "classId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "createdBy" UUID NOT NULL,  
   "className_vi" VARCHAR(100),
   "className_en" VARCHAR(100),
-  "subjectId" VARCHAR(50) NOT NULL,
-  "tutorId" VARCHAR(50) NOT NULL,
+  "subjectId" UUID NOT NULL,
+  "tutorId" UUID NOT NULL,
   "studyType" VARCHAR(20),
   "startDate" DATE,
   "sessions" INT,
   "tuitionFee" DECIMAL(10,2),
   "description" TEXT,
   "maxStudents" INT,
-  "status" VARCHAR(20) NOT NULL DEFAULT 'Pending'
+  "status" UUID NOT NULL
 );
 
 CREATE TABLE "ClassRegistration" (
-  "registrationId" VARCHAR(50) PRIMARY KEY,
-  "classId" VARCHAR(50) NOT NULL,
-  "studentId" VARCHAR(50) NOT NULL,
+  "registrationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "classId" UUID NOT NULL,
+  "studentId" UUID NOT NULL,
   "registrationDate" TIMESTAMP
 );
 
 CREATE TABLE "Schedule" (
-  "scheduleId" VARCHAR(50) PRIMARY KEY,
-  "classId" VARCHAR(50) NOT NULL,
+  "scheduleId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "classId" UUID NOT NULL,
   "zoomUrl" TEXT,
   "zoomMeetingId" VARCHAR(50),
   "zoomPassword" VARCHAR(50),
   "date" DATE,
   "startTime" TIME,
   "endTime" TIME,
-  "status" VARCHAR(20) NOT NULL DEFAULT 'Scheduled'
+  "status" UUID NOT NULL
 );
 
 CREATE TABLE "PaymentMethod" (
-  "methodId" VARCHAR(20) PRIMARY KEY,
+  "methodId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "methodName" VARCHAR(50) NOT NULL,
   "description" TEXT,
   "isActive" BOOL,
@@ -148,19 +150,19 @@ CREATE TABLE "PaymentMethod" (
 );
 
 CREATE TABLE "Payment" (
-  "paymentId" VARCHAR(50) PRIMARY KEY,
-  "registrationId" VARCHAR(50) NOT NULL,
+  "paymentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "registrationId" UUID NOT NULL,
   "amount" DECIMAL(10,2),
   "paymentDate" TIMESTAMP,
-  "methodId" VARCHAR(20) NOT NULL,
-  "status" VARCHAR(10) NOT NULL DEFAULT 'Unpaid'
+  "methodId" UUID NOT NULL,
+  "status" UUID NOT NULL
 );
 
 CREATE TABLE "Evaluation" (
-  "evaluationId" VARCHAR(50) PRIMARY KEY,
-  "classId" VARCHAR(50) NOT NULL,
-  "fromUserId" VARCHAR(50) NOT NULL,
-  "toUserId" VARCHAR(50) NOT NULL,
+  "evaluationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "classId" UUID NOT NULL,
+  "fromUserId" UUID NOT NULL,
+  "toUserId" UUID NOT NULL,
   "criteria1" INT,
   "criteria2" INT,
   "criteria3" INT,
@@ -169,9 +171,9 @@ CREATE TABLE "Evaluation" (
 );
 
 CREATE TABLE "Notification" (
-  "notificationId" VARCHAR(50) PRIMARY KEY,
-  "fromUserId" VARCHAR(50) NOT NULL,
-  "toUserId" VARCHAR(50) NOT NULL,
+  "notificationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "fromUserId" UUID NOT NULL,
+  "toUserId" UUID NOT NULL,
   "title_vi" VARCHAR(100),
   "title_en" VARCHAR(100),
   "message_vi" TEXT,
@@ -182,10 +184,10 @@ CREATE TABLE "Notification" (
 );
 
 CREATE TABLE "Address" (
-  "addressId" VARCHAR(50) PRIMARY KEY,
-  "userId" VARCHAR(50),
-  "classId" VARCHAR(50),
-  "requestId" VARCHAR(50),
+  "addressId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID,
+  "classId" UUID,
+  "requestId" UUID,
   "province" VARCHAR(50),
   "district" VARCHAR(50),
   "ward" VARCHAR(50),
@@ -196,23 +198,23 @@ CREATE TABLE "Address" (
 );
 
 CREATE TABLE "Conversation" (
-  "conversationId" VARCHAR(50) PRIMARY KEY,
+  "conversationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "type" VARCHAR(20),
   "createdAt" TIMESTAMP
 );
 
 CREATE TABLE "ConversationParticipant" (
-  "participantId" VARCHAR(50) PRIMARY KEY,
-  "conversationId" VARCHAR(50) NOT NULL,
-  "userId" VARCHAR(50) NOT NULL,
+  "participantId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "conversationId" UUID NOT NULL,
+  "userId" UUID NOT NULL,
   "joinedAt" TIMESTAMP,
   "isMuted" BOOL DEFAULT false
 );
 
 CREATE TABLE "Message" (
-  "messageId" VARCHAR(50) PRIMARY KEY,
-  "conversationId" VARCHAR(50) NOT NULL,
-  "senderId" VARCHAR(50) NOT NULL,
+  "messageId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "conversationId" UUID NOT NULL,
+  "senderId" UUID NOT NULL,
   "content" TEXT,
   "messageType" VARCHAR(20),
   "sentAt" TIMESTAMP,
@@ -221,8 +223,8 @@ CREATE TABLE "Message" (
 );
 
 CREATE TABLE "MessageFile" (
-  "fileId" VARCHAR(50) PRIMARY KEY,
-  "messageId" VARCHAR(50) NOT NULL,
+  "fileId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "messageId" UUID NOT NULL,
   "fileUrl" TEXT,
   "fileName" VARCHAR(255),
   "fileType" VARCHAR(50),
@@ -230,9 +232,9 @@ CREATE TABLE "MessageFile" (
 );
 
 CREATE TABLE "MessageStatus" (
-  "statusId" VARCHAR(50) PRIMARY KEY,
-  "messageId" VARCHAR(50) NOT NULL,
-  "userId" VARCHAR(50) NOT NULL,
+  "statusId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "messageId" UUID NOT NULL,
+  "userId" UUID NOT NULL,
   "isRead" BOOL DEFAULT false,
   "readAt" TIMESTAMP
 );
@@ -308,3 +310,44 @@ ALTER TABLE "Class" ADD CONSTRAINT "FK_Class_Status" FOREIGN KEY ("status") REFE
 ALTER TABLE "Schedule" ADD CONSTRAINT "FK_Schedule_Status" FOREIGN KEY ("status") REFERENCES "ScheduleStatus" ("statusId");
 
 ALTER TABLE "Payment" ADD CONSTRAINT "FK_Payment_Status" FOREIGN KEY ("status") REFERENCES "PaymentStatus" ("statusId");
+
+-- Chèn dữ liệu mặc định cho PaymentStatus
+INSERT INTO "PaymentStatus" ("code", "name")
+VALUES
+  ('Unpaid', 'Chưa thanh toán'),
+  ('Pending', 'Đang xử lý'),
+  ('Success', 'Đã hoàn thành');
+
+-- Chèn dữ liệu mặc định cho ScheduleStatus
+INSERT INTO "ScheduleStatus" ("code", "name")
+VALUES
+  ('scheduled', 'Buổi học đã được lên lịch, chờ đến thời gian bắt đầu'),
+  ('Ongoing', 'Buổi học đang diễn ra'),
+  ('Completed', 'Buổi học đã kết thúc'),
+  ('Cancelled', 'Buổi học đã bị hủy/tạm ngưng');
+
+-- Chèn dữ liệu mặc định cho StudentRequestStatus
+INSERT INTO "StudentRequestStatus" ("code", "name")
+VALUES
+  ('Pending', 'Yêu cầu mới được tạo, đang chờ gia sư ứng tuyển'),
+  ('InProgress', 'Đã chọn gia sư và đang chuẩn bị tiến hành mở lớp'),
+  ('Completed', 'Đã hoàn thành yêu cầu tìm gia sư'),
+  ('Cancelled', 'Yêu cầu bị học viên hủy hoặc hết hiệu lực');
+
+-- Chèn dữ liệu mặc định cho TutorApplicationStatus
+INSERT INTO "TutorApplicationStatus" ("code", "name")
+VALUES
+  ('Pending', 'Gia sư đã ứng tuyển, đang chờ học viên xem xét/chấp nhận'),
+  ('Accepted', 'Học viên đã chấp nhận gia sư'),
+  ('Rejected', 'Học viên từ chối hồ sơ ứng tuyển'),
+  ('Withdrawn', 'Gia sư rút lại đơn ứng tuyển trước khi được học viên xử lý'),
+  ('Cancelled', 'Bị hủy bởi hệ thống, admin, hoặc do yêu cầu học tập không còn hiệu lực nữa'),
+  ('Completed', 'Yêu cầu đã được xử lý xong');
+
+-- Chèn dữ liệu mặc định cho ClassStatus
+INSERT INTO "ClassStatus" ("code", "name")
+VALUES
+  ('Pending', 'Chờ duyệt lớp'),
+  ('Open', 'Lớp học đang mở để học viên đăng ký'),
+  ('Full', 'Lớp học đã đủ số lượng học viên'),
+  ('Cancelled', 'Hủy lớp vì 1 số lý do nào đó');
