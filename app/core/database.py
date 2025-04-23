@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import text
 from sqlalchemy.exc import ProgrammingError
+from typing import AsyncGenerator
 
 from app.config import settings
 
@@ -44,20 +45,31 @@ class Database:
         async with self.engine.begin() as conn:
             await conn.run_sync(self.Base.metadata.create_all)
         print("Database tables created successfully")
-
-    @asynccontextmanager
-    async def get_session(self) -> AsyncSession:
-        async_session = sessionmaker(self.engine, class_=AsyncSession)
-        session = None
-        try:
-            session = async_session()
-            async with session:
+    
+    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+        async_session = sessionmaker(
+            self.engine, class_=AsyncSession, expire_on_commit=False
+        )
+        async with async_session() as session:
+            try:
                 yield session
-        except Exception as e:
-            await session.rollback()
-            raise e
-        finally:
-            await session.close()
+            except Exception:
+                await session.rollback()
+                raise
+
+    # @asynccontextmanager
+    # async def get_session(self) -> AsyncSession:
+    #     async_session = sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
+    #     session = None
+    #     try:
+    #         session = async_session()
+    #         async with session:
+    #             yield session
+    #     except Exception as e:
+    #         await session.rollback()
+    #         raise e
+    #     finally:
+    #         await session.close()
 
     async def close_database(self):
         await self.engine.dispose()

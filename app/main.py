@@ -12,10 +12,12 @@ from app.initial_data import create_initial_roles, create_initial_admin
 async def lifespan(app: FastAPI):
     await setup_database()
     try:
-        async with database.get_session() as db:
-            await create_initial_roles(db)
-            await create_initial_admin(db)
-            logging.info("Initial roles and admin user created.")
+        # async with database.get_session() as db:
+        db_gen = database.get_session()
+        db = await anext(db_gen)
+        await create_initial_roles(db)
+        await create_initial_admin(db)
+        logging.info("Initial roles and admin user created.")
     except Exception as e:
         logging.error("Error creating initial data.")
         logging.error(str(e))
