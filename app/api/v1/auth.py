@@ -7,6 +7,7 @@ from app.models import User
 from app.schemas.user import Token, UserLogin, UserRegistration
 from app.core.database import database
 from app.core.security import create_access_token, verify_password, decode_access_token, oauth2_scheme
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authorization"])
 
@@ -62,7 +63,8 @@ async def login(data: UserLogin, db: AsyncSession = Depends(database.get_session
         httponly=True,
         samesite="lax",
         path="/",
-        domain="localhost",
+        domain="localhost" if settings.ENVIRONMENT == "development" else None,
+        secure=False if settings.ENVIRONMENT == "development" else True,
     )
 
     return response

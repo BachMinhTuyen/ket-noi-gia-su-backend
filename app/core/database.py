@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import ProgrammingError
 from typing import AsyncGenerator
 
-from app.config import settings
+from app.core.config import settings
 
 DATABASE_URL = settings.DATABASE_URL
 # engine = create_async_engine(DATABASE_URL, echo=True, future=True)

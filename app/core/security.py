@@ -3,7 +3,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
-from app.config import settings
+from app.core.config import settings
 
 # Mã hóa mật khẩu
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
