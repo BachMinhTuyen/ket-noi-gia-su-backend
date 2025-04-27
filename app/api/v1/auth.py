@@ -1,25 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 # from contextlib import asynccontextmanager
 from sqlalchemy import select
-from app.models import User
-from app.schemas.user import Token, UserLogin, UserRegistration
 from app.core.database import database
 from app.core.security import create_access_token, verify_password, decode_access_token, oauth2_scheme
 from app.core.config import settings
+from app.models import User
+from app.schemas.user import Token, UserLogin, UserRegistration
+from app.schemas.response import MessageResponse
+from app.crud.user import createUser
 
 router = APIRouter(prefix="/auth", tags=["Authorization"])
 
-# @router.post("/register")
-# async def register(data: UserRegistration, db:Session = Depends(database.get_session)):
-    
-#     return {
-#         "username": data.username, 
-#         "email": data.email, 
-#         "phoneNumber": data.phoneNumber, 
-#         "password": data.password
-#     }
+@router.post("/register", response_model=MessageResponse)
+async def register(data: UserRegistration, db:AsyncSession = Depends(database.get_session)):
+    result = await createUser(data, db)
+    return result
 
 # @asynccontextmanager
 # async def login(data: UserLogin, db: AsyncSession = Depends(database.get_session)):
@@ -68,6 +65,11 @@ async def login(data: UserLogin, db: AsyncSession = Depends(database.get_session
     )
 
     return response
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(response: Response):
+    response.delete_cookie("access_token", path="/")
+    return {"message": "Successfully logged out"}
 
 @router.get("/me")
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(database.get_session)):

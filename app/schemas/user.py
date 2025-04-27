@@ -1,13 +1,14 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date
+import uuid
 
-# class RoleBase(BaseModel):
-#     roleId: str
-#     roleName: Optional[str]
+class RoleBase(BaseModel):
+    roleId: uuid.UUID
+    roleName: str
 
-#     class Config:
-#         orm_mode = True
+    class Config:
+        orm_mode = True
 
 class UserBase(BaseModel):
     username: str
@@ -18,15 +19,16 @@ class UserBase(BaseModel):
     email: EmailStr
     avatarUrl: Optional[str]
     averageRating: Optional[float] = 5.0
-    roleId: str
+    roleId: uuid.UUID
     isVerified: Optional[bool] = False
 
-class UserRegistration(UserBase):
+class UserRegistration(BaseModel):
     username: str
     email: EmailStr
     phoneNumber: str
     password: str
     fullName: str
+    roleId: uuid.UUID
 
 class UserLogin(BaseModel):
     email: Optional[EmailStr] = None
@@ -37,14 +39,29 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     
-# class UserOut(UserBase):
-#     userId: str
-#     username: str
-#     email: EmailStr
-#     fullName: Optional[str]
+class UserUpdate(BaseModel):
+    fullName: Optional[str] = None
+    birthDate: Optional[date] = None
+    phoneNumber: Optional[str] = None
+    address: Optional[str] = None
+    email: Optional[EmailStr] = None
+    avatarUrl: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class UserOut(BaseModel):
+    userId: uuid.UUID
+    fullName: Optional[str] = None
+    birthDate: Optional[date] = None
+    phoneNumber: Optional[str] = None
+    address: Optional[str] = None
+    email: Optional[EmailStr] = None
+    avatarUrl: Optional[str] = None
+    averageRating: Optional[float] = None
     
-#     class Config:
-#         orm_mode = True
+    class Config:
+        orm_mode = True
 
 # class UserSocialAccountBase(BaseModel):
 #     userId: str
