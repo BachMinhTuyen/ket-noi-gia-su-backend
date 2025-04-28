@@ -18,12 +18,15 @@ async def lifespan(app: FastAPI):
         await create_initial_roles(db)
         await create_initial_admin(db)
         logging.info("Initial roles and admin user created.")
+        yield
     except Exception as e:
         logging.error("Error creating initial data.")
         logging.error(str(e))
-
-    yield
-    await database.close_database()
+        yield
+    finally:
+        if db_gen:
+            await db_gen.aclose()
+        await database.close_database()
 
 app = FastAPI(
     lifespan=lifespan,
