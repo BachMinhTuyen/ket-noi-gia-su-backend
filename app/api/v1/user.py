@@ -29,7 +29,7 @@ async def activate_user(user_id: uuid.UUID, db: AsyncSession = Depends(database.
     result = await activateUser(user_id, db)
     return result
 
-@router.post("/update/{user_id}", response_model=UserOut)
+@router.put("/update/{user_id}", response_model=UserOut)
 async def update_user(user_id: uuid.UUID, user_update: UserUpdate, db: AsyncSession = Depends(database.get_session)):
     updated_user = await updateUser(user_id, user_update, db)
     return updated_user

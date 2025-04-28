@@ -10,17 +10,17 @@ class RoleBase(BaseModel):
     class Config:
         from_attributesmode = True
 
-class UserBase(BaseModel):
-    username: str
-    fullName: str
-    birthDate: date
-    phoneNumber: str
-    address: Optional[str]
-    email: EmailStr
-    avatarUrl: Optional[str]
-    averageRating: Optional[float] = 5.0
-    roleId: uuid.UUID
-    isVerified: Optional[bool] = False
+# class UserBase(BaseModel):
+#     username: str
+#     fullName: str
+#     birthDate: date
+#     phoneNumber: str
+#     address: Optional[str]
+#     email: EmailStr
+#     avatarUrl: Optional[str]
+#     averageRating: Optional[float] = 5.0
+#     roleId: uuid.UUID
+#     isVerified: Optional[bool] = False
 
 class UserRegistration(BaseModel):
     username: str
