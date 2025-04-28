@@ -8,7 +8,7 @@ class RoleBase(BaseModel):
     roleName: str
 
     class Config:
-        orm_mode = True
+        from_attributesmode = True
 
 class UserBase(BaseModel):
     username: str
@@ -48,7 +48,7 @@ class UserUpdate(BaseModel):
     avatarUrl: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributesmode = True
 
 class UserOut(BaseModel):
     userId: uuid.UUID
@@ -61,7 +61,7 @@ class UserOut(BaseModel):
     averageRating: Optional[float] = None
     
     class Config:
-        orm_mode = True
+        from_attributesmode = True
 
 # class UserSocialAccountBase(BaseModel):
 #     userId: str
@@ -74,4 +74,4 @@ class UserOut(BaseModel):
 #     linkedAt: Optional[str]
 
 #     class Config:
-#         orm_mode = True
+#         from_attributesmode = True
