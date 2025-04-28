@@ -14,25 +14,29 @@ async def GetStudentProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depen
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
 
+async def createStudentProfile(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    # Check if a student profile already exists
+    existing_student_profile = await db.execute(select(StudentProfile).filter(StudentProfile.userId == user_id))
+    student_profile = existing_student_profile.scalars().first()
+    
+    if not student_profile:
+        new_profile = StudentProfile(
+            userId=user_id,
+            gradeLevel=None,
+            learningGoals=None,
+            preferredStudyTime=None,
+            description=None
+        )
+        db.add(new_profile)
+        return new_profile
+    return None
+
 async def UpdateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(StudentProfile).filter(StudentProfile.userId == user_id))
     profile = result.scalars().first()
     
     if not profile:
-        new_profile = StudentProfile(
-            userId=user_id,
-            gradeLevel=profile_data.gradeLevel or None,
-            learningGoals=profile_data.learningGoals or None,
-            preferredStudyTime=profile_data.preferredStudyTime or None,
-            description=profile_data.description or None
-        )
-        db.add(new_profile)
-        await db.commit()
-        await db.refresh(new_profile)
-        return ResponseWithMessage(
-            message="User profile updated successfully",
-            data=StudentProfileOut.model_validate(profile_data)
-        )
+        return HTTPException(status_code=404, detail="Profile not found")
 
     for key, value in profile_data.dict(exclude_unset=True).items():
         setattr(profile, key, value)
@@ -44,6 +48,7 @@ async def UpdateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileI
         data=StudentProfileOut.model_validate(profile)
     )
 
+
 async def GetTutorProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
     profile = result.scalars().first()
@@ -51,26 +56,30 @@ async def GetTutorProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
 
+async def createTutorProfile(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    existing_tutor_profile = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
+    tutor_profile = existing_tutor_profile.scalars().first()
+
+    if not tutor_profile:
+        new_profile = TutorProfile(
+            userId=user_id,
+            degree=None,
+            certificate=None,
+            experience=None,
+            description=None,
+            introVideoUrl=None,
+            isApproved=True
+        )
+        db.add(new_profile)
+        return new_profile
+    return None
+
 async def UpdateTutorProfile(user_id: uuid.UUID, profile_data: TutorProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
     profile = result.scalars().first()
     
     if not profile:
-        new_profile = TutorProfile(
-            userId=user_id,
-            degree=profile_data.degree or None,
-            certificate=profile_data.certificate or None,
-            experience=profile_data.experience or None,
-            description=profile_data.description or None,
-            introVideoUrl=profile_data.introVideoUrl or None
-        )
-        db.add(new_profile)
-        await db.commit()
-        await db.refresh(new_profile)
-        return ResponseWithMessage(
-            message="User profile updated successfully",
-            data=TutorProfileOut.model_validate(profile_data)
-        )
+        return HTTPException(status_code=404, detail="Profile not found")
 
     for key, value in profile_data.dict(exclude_unset=True).items():
         setattr(profile, key, value)

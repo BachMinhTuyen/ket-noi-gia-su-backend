@@ -1,11 +1,13 @@
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from fastapi import HTTPException
 from app.models import User
 from app.schemas.user import UserRegistration, UserUpdate
 from app.core.database import database
 from app.core.security import decode_access_token, oauth2_scheme, hash_password
+from app.crud.profile import createStudentProfile, createTutorProfile
 import uuid
 
 async def getCurrentUser(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(database.get_session)):
@@ -56,15 +58,27 @@ async def createUser(user_data: UserRegistration, db: AsyncSession = Depends(dat
     return {"message": "User created successfully"}
 
 async def activateUser(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
-    result = await db.execute(select(User).filter(User.userId == user_id))
+    result = await db.execute(select(User).filter(User.userId == user_id).options(selectinload(User.role)))
     user = result.scalars().first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if user.role.roleName == "Student":
+        new_profile = await createStudentProfile(user_id, db)
+
+    elif user.role.roleName == "Tutor":
+        new_profile = await createTutorProfile(user_id, db)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid user role")
     
     user.isVerified = True
     await db.commit()
     await db.refresh(user)
+
+    if new_profile:
+        await db.refresh(new_profile)
+
     return {"message": "User activated successfully"}
 
 async def updateUser(user_id: uuid.UUID, user_data: UserUpdate, db: AsyncSession = Depends(database.get_session)):
