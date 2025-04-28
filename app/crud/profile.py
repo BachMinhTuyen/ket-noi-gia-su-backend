@@ -7,7 +7,7 @@ from app.models.profile import StudentProfile, TutorProfile
 from app.schemas.response import ResponseWithMessage
 from app.schemas.profile import StudentProfileIn, StudentProfileOut, TutorProfileIn, TutorProfileOut
 
-async def GetStudentProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+async def getStudentProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(StudentProfile).filter(StudentProfile.userId == user_id))
     profile = result.scalars().first()
     if not profile:
@@ -31,7 +31,7 @@ async def createStudentProfile(user_id: uuid.UUID, db: AsyncSession = Depends(da
         return new_profile
     return None
 
-async def UpdateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileIn, db: AsyncSession = Depends(database.get_session)):
+async def updateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(StudentProfile).filter(StudentProfile.userId == user_id))
     profile = result.scalars().first()
     
@@ -49,7 +49,7 @@ async def UpdateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileI
     )
 
 
-async def GetTutorProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+async def getTutorProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
     profile = result.scalars().first()
     if not profile:
@@ -74,7 +74,7 @@ async def createTutorProfile(user_id: uuid.UUID, db: AsyncSession = Depends(data
         return new_profile
     return None
 
-async def UpdateTutorProfile(user_id: uuid.UUID, profile_data: TutorProfileIn, db: AsyncSession = Depends(database.get_session)):
+async def updateTutorProfile(user_id: uuid.UUID, profile_data: TutorProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
     profile = result.scalars().first()
     
