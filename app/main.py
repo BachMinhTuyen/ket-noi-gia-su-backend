@@ -36,6 +36,7 @@ app = FastAPI(
 )
 
 origins = [
+    "https://ket-noi-gia-su-backend.onrender.com",
     "http://localhost",
     "http://localhost:3000",
     "http://localhost:8000",
