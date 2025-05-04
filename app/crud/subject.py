@@ -46,9 +46,7 @@ async def createSubject(subject_data: SubjectCreate, db: AsyncSession = Depends(
 async def updateSubject(subject_id: uuid.UUID, subject_data: SubjectUpdate, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(Subject).filter(Subject.subjectId == subject_id))
     subject = result.scalars().first()
-    print('------------------------------------------------------------------------')
-    print(subject_data)
-    print('------------------------------------------------------------------------')
+    
     if not subject:
         return {"message": "Subject not found"}
 
