@@ -1,8 +1,7 @@
-from fastapi import Depends
-from sqlalchemy import select
+from fastapi import Depends, HTTPException
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from fastapi import HTTPException
 from app.models import User
 from app.schemas.user import UserRegistration, UserUpdate
 from app.core.database import database
@@ -18,13 +17,103 @@ async def getCurrentUser(token: str = Depends(oauth2_scheme), db: AsyncSession =
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-async def getAllActiveUsers(db: AsyncSession = Depends(database.get_session)):
-    result = await db.execute(select(User).filter(User.isVerified == True))
-    return result.scalars().all()
+async def getAllActiveUsers(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    
+    total_result = await db.execute(select(func.count())
+                                    .select_from(User)
+                                    .filter(User.isVerified == True))
+    total_items = total_result.scalar()
 
-async def getAllNotActiveUsers(db: AsyncSession = Depends(database.get_session)):
-    result = await db.execute(select(User).filter(User.isVerified == False))
-    return result.scalars().all()
+    result = await db.execute(select(User)
+                                .filter(User.isVerified == True)
+                                .offset(offset)
+                                .limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllNotActiveUsers(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    
+    total_result = await db.execute(select(func.count())
+                                    .select_from(User)
+                                    .filter(User.isVerified == False))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(User)
+                                .filter(User.isVerified == False)
+                                .offset(offset)
+                                .limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllUsers(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    
+    total_result = await db.execute(select(func.count())
+                                    .select_from(User))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(User)
+                                .offset(offset)
+                                .limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllUsersByRole(roleId: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    
+    total_result = await db.execute(select(func.count())
+                                    .select_from(User)
+                                    .filter(User.roleId == roleId))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(User)
+                                .filter(User.roleId == roleId)
+                                .offset(offset)
+                                .limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
 
 async def getUserById(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(User).filter(User.userId == user_id))

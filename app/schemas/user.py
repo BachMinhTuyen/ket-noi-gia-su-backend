@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date
+from typing import List
 import uuid
 
 class RoleBase(BaseModel):
@@ -52,6 +53,7 @@ class UserUpdate(BaseModel):
 
 class UserOut(BaseModel):
     userId: uuid.UUID
+    username: Optional[str] = None
     fullName: Optional[str] = None
     birthDate: Optional[date] = None
     phoneNumber: Optional[str] = None
@@ -59,9 +61,24 @@ class UserOut(BaseModel):
     email: Optional[EmailStr] = None
     avatarUrl: Optional[str] = None
     averageRating: Optional[float] = None
-    
+    roleId: uuid.UUID = None
+    isVerified: Optional[bool] = False
+
     class Config:
         from_attributesmode = True
+
+class PaginationMeta(BaseModel):
+    currentPage: int
+    totalPages: int
+    totalItems: int
+
+class PaginatedUserResponse(BaseModel):
+    pagination: PaginationMeta
+    data: List[UserOut]
+
+class PaginatedRoleResponse(BaseModel):
+    pagination: PaginationMeta
+    data: List[RoleBase]
 
 # class UserSocialAccountBase(BaseModel):
 #     userId: str
