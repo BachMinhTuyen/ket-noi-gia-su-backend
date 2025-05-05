@@ -7,7 +7,7 @@ from app.schemas.response import ResponseWithMessage
 from app.core.database import database
 import uuid
 
-async def getAllSubjects(db: AsyncSession, page: int = 1, limit: int = 10):
+async def getAllSubjects(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
 
     total_result = await db.execute(select(func.count()).select_from(Subject))
