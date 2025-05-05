@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Text, Boolean, String, Integer
+from sqlalchemy import Column, ForeignKey, Text, Boolean, String, Integer, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -8,14 +8,14 @@ class Conversation(Base):
     __tablename__ = 'Conversation'
     conversationId = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     type = Column(String(20))
-    createdAt = Column(DateTime)
+    createdAt = Column(TIMESTAMP(timezone=True))
 
 class ConversationParticipant(Base):
     __tablename__ = 'ConversationParticipant'
     participantId = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     conversationId = Column(UUID(as_uuid=True), ForeignKey('Conversation.conversationId'), nullable=False)
     userId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=False)
-    joinedAt = Column(DateTime)
+    joinedAt = Column(TIMESTAMP(timezone=True))
     isMuted = Column(Boolean, default=False)
     
     user = relationship("User", back_populates="conversation_participants")
@@ -27,7 +27,7 @@ class Message(Base):
     senderId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=False)
     content = Column(Text)
     messageType = Column(String(20))
-    sentAt = Column(DateTime)
+    sentAt = Column(TIMESTAMP(timezone=True))
     isEdited = Column(Boolean, default=False)
     isDeleted = Column(Boolean, default=False)
     
@@ -48,6 +48,6 @@ class MessageStatus(Base):
     messageId = Column(UUID(as_uuid=True), ForeignKey('Message.messageId'), nullable=False)
     userId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=False)
     isRead = Column(Boolean, default=False)
-    readAt = Column(DateTime)
+    readAt = Column(TIMESTAMP(timezone=True))
     
     user = relationship("User", back_populates="message_statuses")

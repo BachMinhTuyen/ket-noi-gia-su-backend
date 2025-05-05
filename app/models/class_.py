@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey, Integer, DateTime, DECIMAL, Text, Date
+from sqlalchemy import Column, String, ForeignKey, Integer, TIMESTAMP, DECIMAL, Text, Date
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -31,7 +31,7 @@ class ClassRegistration(Base):
     registrationId = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     classId = Column(UUID(as_uuid=True), ForeignKey('Class.classId'), nullable=False)
     studentId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=False)
-    registrationDate = Column(DateTime)
+    registrationDate = Column(TIMESTAMP(timezone=True))
     
     class_relation = relationship("Class", back_populates="class_registrations")
     student = relationship("User", back_populates="class_registrations")

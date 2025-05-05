@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, Text, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -14,7 +14,7 @@ class Evaluation(Base):
     criteria2 = Column(Integer)
     criteria3 = Column(Integer)
     comment = Column(Text)
-    evaluationDate = Column(DateTime)
+    evaluationDate = Column(TIMESTAMP(timezone=True))
     
     from_user = relationship("User", back_populates="sent_evaluations", foreign_keys=[fromUserId])
     to_user = relationship("User", back_populates="received_evaluations", foreign_keys=[toUserId])
