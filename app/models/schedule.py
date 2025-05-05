@@ -11,7 +11,7 @@ class Schedule(Base):
     zoomUrl = Column(Text)
     zoomMeetingId = Column(String(50))
     zoomPassword = Column(String(50))
-    date = Column(Date)
+    dayStudying = Column(Date)
     startTime = Column(Time)
     endTime = Column(Time)
     status = Column(UUID(as_uuid=True), ForeignKey('ScheduleStatus.statusId'), nullable=False)
