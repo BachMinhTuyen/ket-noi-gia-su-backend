@@ -135,7 +135,7 @@ CREATE TABLE "Schedule" (
   "zoomUrl" TEXT,
   "zoomMeetingId" VARCHAR(50),
   "zoomPassword" VARCHAR(50),
-  "date" DATE,
+  "dayStudying" DATE,
   "startTime" TIME,
   "endTime" TIME,
   "status" UUID NOT NULL
