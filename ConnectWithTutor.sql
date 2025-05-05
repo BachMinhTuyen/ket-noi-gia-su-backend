@@ -76,7 +76,7 @@ CREATE TABLE "UserSocialAccount" (
   "provider" VARCHAR(20),
   "providerUserId" VARCHAR(100),
   "email" VARCHAR(100),
-  "linkedAt" TIMESTAMP
+  "linkedAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "Subject" (
@@ -102,7 +102,7 @@ CREATE TABLE "TutorApplication" (
   "applicationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "tutorId" UUID NOT NULL,
   "requestId" UUID NOT NULL,
-  "applicationDate" TIMESTAMP,
+  "applicationDate" TIMESTAMPTZ,
   "status" UUID NOT NULL
 );
 
@@ -126,7 +126,7 @@ CREATE TABLE "ClassRegistration" (
   "registrationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "classId" UUID NOT NULL,
   "studentId" UUID NOT NULL,
-  "registrationDate" TIMESTAMP
+  "registrationDate" TIMESTAMPTZ
 );
 
 CREATE TABLE "Schedule" (
@@ -153,7 +153,7 @@ CREATE TABLE "Payment" (
   "paymentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "registrationId" UUID NOT NULL,
   "amount" DECIMAL(10,2),
-  "paymentDate" TIMESTAMP,
+  "paymentDate" TIMESTAMPTZ,
   "methodId" UUID NOT NULL,
   "status" UUID NOT NULL
 );
@@ -167,7 +167,7 @@ CREATE TABLE "Evaluation" (
   "criteria2" INT,
   "criteria3" INT,
   "comment" TEXT,
-  "evaluationDate" TIMESTAMP
+  "evaluationDate" TIMESTAMPTZ
 );
 
 CREATE TABLE "Notification" (
@@ -180,7 +180,7 @@ CREATE TABLE "Notification" (
   "message_en" TEXT,
   "type" VARCHAR(20),
   "isRead" BOOL,
-  "createdAt" TIMESTAMP
+  "createdAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "Address" (
@@ -200,14 +200,14 @@ CREATE TABLE "Address" (
 CREATE TABLE "Conversation" (
   "conversationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "type" VARCHAR(20),
-  "createdAt" TIMESTAMP
+  "createdAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "ConversationParticipant" (
   "participantId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "conversationId" UUID NOT NULL,
   "userId" UUID NOT NULL,
-  "joinedAt" TIMESTAMP,
+  "joinedAt" TIMESTAMPTZ,
   "isMuted" BOOL DEFAULT false
 );
 
@@ -217,7 +217,7 @@ CREATE TABLE "Message" (
   "senderId" UUID NOT NULL,
   "content" TEXT,
   "messageType" VARCHAR(20),
-  "sentAt" TIMESTAMP,
+  "sentAt" TIMESTAMPTZ,
   "isEdited" BOOL DEFAULT false,
   "isDeleted" BOOL DEFAULT false
 );
@@ -236,7 +236,7 @@ CREATE TABLE "MessageStatus" (
   "messageId" UUID NOT NULL,
   "userId" UUID NOT NULL,
   "isRead" BOOL DEFAULT false,
-  "readAt" TIMESTAMP
+  "readAt" TIMESTAMPTZ
 );
 
 ALTER TABLE "User" ADD CONSTRAINT "FK_User_Role" FOREIGN KEY ("roleId") REFERENCES "Role" ("roleId");
