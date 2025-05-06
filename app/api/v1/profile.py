@@ -23,7 +23,7 @@ async def get_tutor_profile_by_user_id(user_id: uuid.UUID, db: AsyncSession = De
     result = await getTutorProfileByUserId(user_id, db)
     return result
 
-@router.post("/approve/{user_id}", response_model=MessageResponse)
+@router.post("/tutors/approve/{user_id}", response_model=MessageResponse)
 async def approve_tutor_profile(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await approveTutorProfile(user_id, db)
     return result

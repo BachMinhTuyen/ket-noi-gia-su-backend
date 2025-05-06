@@ -7,7 +7,7 @@ from app.crud.class_ import getAllClass, getAllClassByStatus, getClassById, crea
 from app.schemas.class_ import ClassCreate, PaginatedClassResponse, ClassUpdate, ClassOut
 from app.schemas.response import ResponseWithMessage, MessageResponse
 
-router = APIRouter(prefix="/class", tags=["Class"])
+router = APIRouter(prefix="/classes", tags=["Class"])
 
 @router.get('/', response_model=PaginatedClassResponse)
 async def get_all_class(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
@@ -29,12 +29,12 @@ async def create_class(class_data: ClassCreate, db: AsyncSession = Depends(datab
     result = await createClass(class_data, db)
     return result
 
-@router.put('/update',  response_model=ResponseWithMessage)
+@router.put('/update/{class_id}',  response_model=ResponseWithMessage)
 async def update_class(class_id: uuid.UUID, class_data: ClassUpdate, db: AsyncSession = Depends(database.get_session)):
     result = await updateClass(class_id, class_data, db)
     return result
 
-@router.delete('/delete', response_model=MessageResponse)
+@router.delete('/delete/{class_id}', response_model=MessageResponse)
 async def delete_class(class_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await deleteClass(class_id, db)
     return result

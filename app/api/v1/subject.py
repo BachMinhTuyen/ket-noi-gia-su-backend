@@ -6,7 +6,7 @@ from app.schemas.subject import SubjectCreate, PaginatedSubjectResponse, Subject
 from app.schemas.response import MessageResponse, ResponseWithMessage
 import uuid
 
-router = APIRouter(prefix="/subject", tags=["Subject"])
+router = APIRouter(prefix="/subjects", tags=["Subject"])
 
 @router.get("/", response_model=PaginatedSubjectResponse)
 async def get_all_subjects(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
