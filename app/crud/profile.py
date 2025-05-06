@@ -68,11 +68,20 @@ async def createTutorProfile(user_id: uuid.UUID, db: AsyncSession = Depends(data
             experience=None,
             description=None,
             introVideoUrl=None,
-            isApproved=True
+            isApproved=False
         )
         db.add(new_profile)
         return new_profile
     return None
+
+async def approveTutorProfile(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
+    profile = result.scalars().first()
+
+    profile.isApproved = True
+    await db.commit()
+    await db.refresh(profile)
+    return {"message": "User profile approved successfully"}
 
 async def updateTutorProfile(user_id: uuid.UUID, profile_data: TutorProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
