@@ -14,6 +14,7 @@ from . import (
     class_registration, 
     payment,
     payment_method,
+    address,
 )
 
 router = APIRouter()
@@ -31,3 +32,4 @@ router.include_router(tutor_application.router)
 router.include_router(schedule.router)
 router.include_router(payment.router)
 router.include_router(payment_method.router)
+router.include_router(address.router)
