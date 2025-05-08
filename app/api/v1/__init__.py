@@ -1,5 +1,20 @@
 from fastapi import APIRouter
-from . import auth, user, role, calculate, profile, subject, status, class_, student_request, tutor_application, schedule, class_registration
+from . import (
+    auth, 
+    user, 
+    role, 
+    calculate, 
+    profile, 
+    subject, 
+    status, 
+    class_, 
+    student_request, 
+    tutor_application, 
+    schedule, 
+    class_registration, 
+    payment,
+    payment_method,
+)
 
 router = APIRouter()
 router.include_router(calculate.router)
@@ -14,3 +29,5 @@ router.include_router(class_registration.router)
 router.include_router(student_request.router)
 router.include_router(tutor_application.router)
 router.include_router(schedule.router)
+router.include_router(payment.router)
+router.include_router(payment_method.router)

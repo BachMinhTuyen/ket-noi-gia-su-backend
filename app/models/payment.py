@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, ForeignKey, DECIMAL, TIMESTAMP, Text, Boo
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from datetime import datetime, timezone
 import uuid
 
 class PaymentMethod(Base):
@@ -9,7 +10,7 @@ class PaymentMethod(Base):
     methodId = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     methodName = Column(String(50), nullable=False)
     description = Column(Text)
-    isActive = Column(Boolean)
+    isActive = Column(Boolean, default=False)
     logoUrl = Column(Text)
 
 
@@ -18,7 +19,7 @@ class Payment(Base):
     paymentId = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     registrationId = Column(UUID(as_uuid=True), ForeignKey('ClassRegistration.registrationId'), nullable=False)
     amount = Column(DECIMAL(10, 2))
-    paymentDate = Column(TIMESTAMP(timezone=True))
+    paidAt = Column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))
     methodId = Column(UUID(as_uuid=True), ForeignKey('PaymentMethod.methodId'), nullable=False)
     status = Column(UUID(as_uuid=True), ForeignKey('PaymentStatus.statusId'), nullable=False)
     
