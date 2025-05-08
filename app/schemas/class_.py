@@ -63,3 +63,23 @@ class PaginatedClassResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+
+class ClassRegistrationOut(BaseModel):
+    registrationId: uuid.UUID
+    classId: uuid.UUID
+    studentId: uuid.UUID
+    registrationDate: Optional[datetime] = None
+
+class ClassRegistrationCreate(BaseModel):
+    classId: uuid.UUID
+    studentId: uuid.UUID
+    registrationDate: datetime
+
+class PaginatedClassRegistrationResponse(BaseModel):
+    pagination: PaginationMeta
+    data: list[ClassRegistrationOut]
+
+    class Config:
+        from_attributes = True

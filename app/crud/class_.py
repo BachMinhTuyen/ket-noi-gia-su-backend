@@ -1,11 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 import uuid
 
 from app.core.database import database
 from app.models import Class, Schedule, Address, Evaluation, ClassRegistration
-from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut
+from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut
 from app.schemas.response import ResponseWithMessage
 
 async def getAllClass(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
@@ -118,3 +118,114 @@ async def deleteClass(class_id: uuid.UUID, db: AsyncSession = Depends(database.g
     await db.delete(result)
     await db.commit()
     return { "message": "Class deleted successfully" }
+
+
+
+async def getAllClassRegistration(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10): 
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count())
+                                    .select_from(ClassRegistration))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(ClassRegistration).offset(offset).limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllClassRegistrationByClass(class_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10): 
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count())
+                                    .select_from(ClassRegistration)
+                                    .filter(ClassRegistration.classId == class_id))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(ClassRegistration).filter(ClassRegistration.classId == class_id).offset(offset).limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllClassRegistrationByStudent(student_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10): 
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count())
+                                    .select_from(ClassRegistration)
+                                    .filter(ClassRegistration.studentId == student_id))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(ClassRegistration).filter(ClassRegistration.studentId == student_id).offset(offset).limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getClassRegistrationById(registration_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    data = await db.execute(select(ClassRegistration).filter(ClassRegistration.registrationId == registration_id))
+    result = data.scalars().first()
+    
+    if not result:
+        return ResponseWithMessage(
+            message="Class registration not found",
+            data=None
+        ) 
+
+    return ResponseWithMessage(
+        message="Get class registration information successfully",
+        data=ClassRegistrationOut.model_validate(result)
+    )
+
+async def createClassRegistration(registration_data: ClassRegistrationCreate, db: AsyncSession = Depends(database.get_session)):
+    existing_registration = await db.execute(select(ClassRegistration).filter(
+        and_(
+            ClassRegistration.classId == registration_data.classId,
+            ClassRegistration.studentId == registration_data.studentId
+        )
+    ))
+    result = existing_registration.scalars().first()
+
+    if result:
+        return { 'message' : 'Class registration already exists.' }
+
+    new_class_registration = ClassRegistration(**registration_data.dict())
+    db.add(new_class_registration)
+    await db.commit()
+    await db.refresh(new_class_registration)
+    return { 'message' : 'Class registration created successfully' }
+
+
+async def deleteClassRegistration(registration_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    existing_status = await db.execute(select(ClassRegistration).filter(ClassRegistration.registrationId == registration_id))
+    result = existing_status.scalars().first()
+    if not result:
+        return { "message": "Class registration not found" }
+
+    await db.delete(result)
+    await db.commit()
+    return { "message": "Class registration deleted successfully" }
