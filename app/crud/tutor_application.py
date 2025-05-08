@@ -48,6 +48,26 @@ async def getAllTutorApplicationByUser(user_id: uuid.UUID, db: AsyncSession = De
         "data": data
     }
 
+async def getAllTutorApplicationByRequestId(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count()).select_from(TutorApplication).filter(TutorApplication.requestId == request_id))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(TutorApplication).filter(TutorApplication.requestId == request_id).offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
 async def getAllTutorApplicationByStatus(status_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
 

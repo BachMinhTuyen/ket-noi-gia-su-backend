@@ -18,6 +18,11 @@ async def get_all_tutor_applications_by_user(user_id: uuid.UUID, db: AsyncSessio
     result = await tutor_application.getAllTutorApplicationByUser(user_id, db, page, limit)
     return result
 
+@router.get("/get-by-request-id/{request_id}", response_model=PaginatedClassResponse)
+async def get_all_tutor_applications_by_request_id(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await tutor_application.getAllTutorApplicationByRequestId(request_id, db, page, limit)
+    return result
+
 @router.get("/get-by-status/{status_id}", response_model=PaginatedClassResponse)
 async def get_all_tutor_applications_by_status(status_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     result = await tutor_application.getAllTutorApplicationByStatus(status_id, db, page, limit)
