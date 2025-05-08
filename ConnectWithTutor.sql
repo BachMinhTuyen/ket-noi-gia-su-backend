@@ -95,7 +95,10 @@ CREATE TABLE "StudentRequest" (
   "tuitionFee" DECIMAL(10,2),
   "location" VARCHAR(100),
   "description" TEXT,
-  "status" UUID NOT NULL
+  "status" UUID NOT NULL,
+  "title" TEXT,
+  "studentCount" INT DEFAULT 1,
+  "createAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "TutorApplication" (
