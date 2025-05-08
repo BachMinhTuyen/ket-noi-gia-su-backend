@@ -1,7 +1,6 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
-from typing import Optional
 from app.core.database import database
 from app.models import PaymentStatus, Payment, PaymentMethod, Class, ClassRegistration
 from app.schemas.payment import PaymentOrderCreate, PaymentOrderUpdate, PaymentOrderOut, PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodOut
