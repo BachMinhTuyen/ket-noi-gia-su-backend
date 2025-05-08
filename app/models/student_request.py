@@ -1,7 +1,8 @@
-from sqlalchemy import Column, String, ForeignKey, Text, DECIMAL
+from sqlalchemy import Column, String, ForeignKey, Text, DECIMAL, Integer, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from datetime import datetime, timezone
 import uuid
 
 class StudentRequest(Base):
@@ -15,6 +16,9 @@ class StudentRequest(Base):
     location = Column(String(100))
     description = Column(Text)
     status = Column(UUID(as_uuid=True), ForeignKey('StudentRequestStatus.statusId'), nullable=False)
-    
+    title = Column(String(20))
+    studentCount = Column(Integer)
+    createdAt = Column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))
+
     student = relationship("User", back_populates="student_requests")
     status_relation = relationship("StudentRequestStatus", back_populates="requests")

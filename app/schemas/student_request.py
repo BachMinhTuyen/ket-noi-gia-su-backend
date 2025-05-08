@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from decimal import Decimal
+from datetime import datetime
 import uuid
 
 class StudentRequestOut(BaseModel):
@@ -13,6 +14,9 @@ class StudentRequestOut(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     status: uuid.UUID 
+    title: Optional[str] = None
+    studentCount: Optional[int] = None
+    createdAt: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -26,12 +30,13 @@ class StudentRequestCreate(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     status: uuid.UUID 
+    title: Optional[str] = None
+    studentCount: Optional[int] = None
 
     class Config:
         from_attributes = True
 
 class StudentRequestUpdate(BaseModel):
-    studentId: Optional[uuid.UUID] = None
     subjectId: Optional[uuid.UUID] = None
     studyType: Optional[str] = None
     preferredSchedule: Optional[str] = None
@@ -39,6 +44,8 @@ class StudentRequestUpdate(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     status: Optional[uuid.UUID] = None
+    title: Optional[str] = None
+    studentCount: Optional[int] = None
 
     class Config:
         from_attributes = True
