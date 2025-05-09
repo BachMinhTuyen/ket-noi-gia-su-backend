@@ -30,7 +30,7 @@ async def get_all_not_active_users(db: AsyncSession = Depends(database.get_sessi
         raise HTTPException(status_code=404, detail="No users found")
     return result
 
-@router.get("/{role_id}", response_model=PaginatedUserResponse)
+@router.get("/get-by-role/{role_id}", response_model=PaginatedUserResponse)
 async def get_all_users_by_role(role_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     result = await getAllUsersByRole(role_id, db, page, limit)
     if not result:
