@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from fastapi import HTTPException, Depends
 import uuid
 from app.core.database import database
@@ -7,8 +7,49 @@ from app.models.profile import StudentProfile, TutorProfile
 from app.schemas.response import ResponseWithMessage
 from app.schemas.profile import StudentProfileIn, StudentProfileOut, TutorProfileIn, TutorProfileOut
 
-async def getStudentProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
-    result = await db.execute(select(StudentProfile).filter(StudentProfile.userId == user_id))
+async def deleteUserProfile(user_profile_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    # Check student profile
+    res_student = await db.execute(
+        select(StudentProfile).filter(
+            or_(
+                StudentProfile.studentId == user_profile_id,
+                StudentProfile.userId == user_profile_id,
+            )
+        )
+    )
+    student_profile = res_student.scalars().first()
+
+    if student_profile:
+        await db.delete(student_profile)
+        await db.commit()
+        return {"message": "Student profile deleted successfully"}
+
+    # Check tutor profile
+    res_tutor = await db.execute(
+        select(TutorProfile).filter(
+            or_(
+                TutorProfile.tutorId == user_profile_id,
+                TutorProfile.userId == user_profile_id,
+            )
+        )
+    )
+    tutor_profile = res_tutor.scalars().first()
+
+    if tutor_profile:
+        await db.delete(tutor_profile)
+        await db.commit()
+        return {"message": "Tutor profile deleted successfully"}
+    
+    return { "message": "Profile not found" }
+
+
+async def getStudentProfileByUserId(user_profile_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    result = await db.execute(select(StudentProfile).filter(
+        or_(
+                StudentProfile.studentId == user_profile_id,
+                StudentProfile.userId == user_profile_id,
+            )
+    ))
     profile = result.scalars().first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -49,8 +90,13 @@ async def updateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileI
     )
 
 
-async def getTutorProfileByUserId(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
-    result = await db.execute(select(TutorProfile).filter(TutorProfile.userId == user_id))
+async def getTutorProfileByUserId(user_profile_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    result = await db.execute(select(TutorProfile).filter(
+        or_(
+                TutorProfile.tutorId == user_profile_id,
+                TutorProfile.userId == user_profile_id,
+            )
+    ))
     profile = result.scalars().first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
