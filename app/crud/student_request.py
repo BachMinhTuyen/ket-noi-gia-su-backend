@@ -67,6 +67,19 @@ async def getAllStudentRequestByUser(user_id: uuid.UUID, db: AsyncSession = Depe
         "data": data
     }
 
+async def getStudentRequestById(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    res = await db.execute(select(StudentRequest).filter(StudentRequest.requestId == request_id))
+    data = res.scalars().first()
+    if not data:
+        return ResponseWithMessage(
+            message = "Student request not found",
+            data = None
+        )
+    return ResponseWithMessage(
+        message = "Get student request successfully",
+        data = StudentRequestOut.model_validate(data)
+    )
+
 async def createStudentRequest(request_data: StudentRequestCreate, db: AsyncSession = Depends(database.get_session)):
     new_request = StudentRequest(**request_data.dict())
     db.add(new_request)

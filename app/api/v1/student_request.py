@@ -23,6 +23,11 @@ async def get_all_student_request_by_user(user_id: uuid.UUID, db: AsyncSession =
     result = await student_request.getAllStudentRequestByUser(user_id, db, page, limit)
     return result
 
+@router.get('/{request_id}', response_model=ResponseWithMessage)
+async def get_student_request_by_id(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    result = await student_request.getStudentRequestById(request_id, db)
+    return result
+
 @router.post('/create', response_model=MessageResponse)
 async def create_student_request(request_data: StudentRequestCreate, db: AsyncSession = Depends(database.get_session)):
     result = await student_request.createStudentRequest(request_data, db)
