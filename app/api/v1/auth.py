@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 # from contextlib import asynccontextmanager
@@ -10,11 +10,22 @@ from app.models import User
 from app.schemas.user import Token, UserLogin, UserRegistration
 from app.schemas.response import MessageResponse
 from app.crud.user import createUser
+from app.core.email_service import EmailSchema, send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["Authorization"])
 
 @router.post("/register", response_model=MessageResponse)
-async def register(data: UserRegistration, db:AsyncSession = Depends(database.get_session)):
+async def register(data: UserRegistration, background_tasks: BackgroundTasks, db:AsyncSession = Depends(database.get_session)):
+    result = await createUser(data, db)
+    # Get new_user after new user is saved to database
+    user_res = await db.execute(select(User).filter(User.email == data.email))
+    new_user = user_res.scalars().first()
+    #Send verification email
+    await send_verification_email(EmailSchema(email=[data.email]), new_user.userId, background_tasks)
+    return result
+
+@router.post("/registration-for-admin-role", response_model=MessageResponse)
+async def registration_is_for_admin_role(data: UserRegistration, db:AsyncSession = Depends(database.get_session)):
     result = await createUser(data, db)
     return result
 
