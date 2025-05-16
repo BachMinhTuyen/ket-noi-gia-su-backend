@@ -1,6 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import uuid
+
+class PaginationMeta(BaseModel):
+    currentPage: int
+    totalPages: int
+    totalItems: int
 
 # Student Profile Schemas
 class StudentProfileIn(BaseModel):
@@ -21,6 +26,10 @@ class StudentProfileOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedStudentProfileResponse(BaseModel):
+    pagination: PaginationMeta
+    data: List[StudentProfileOut]
 
 #Tutor Profile Schemas
 class TutorProfileIn(BaseModel):
@@ -43,3 +52,7 @@ class TutorProfileOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedTutorProfileResponse(BaseModel):
+    pagination: PaginationMeta
+    data: List[TutorProfileOut]

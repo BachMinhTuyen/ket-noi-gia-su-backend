@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 from fastapi import HTTPException, Depends
 import uuid
 from app.core.database import database
@@ -42,6 +42,27 @@ async def deleteUserProfile(user_profile_id: uuid.UUID, db: AsyncSession = Depen
     
     return { "message": "Profile not found" }
 
+
+async def getAllStudentProfiles(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count())
+                                    .select_from(StudentProfile))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(StudentProfile).offset(offset).limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
 
 async def getStudentProfileByUserId(user_profile_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(StudentProfile).filter(
@@ -89,6 +110,27 @@ async def updateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileI
         data=StudentProfileOut.model_validate(profile)
     )
 
+
+async def getAllTutorProfiles(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count())
+                                    .select_from(TutorProfile))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(TutorProfile).offset(offset).limit(limit))
+    
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
 
 async def getTutorProfileByUserId(user_profile_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorProfile).filter(

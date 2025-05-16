@@ -1,12 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 from app.core.database import database
-from app.schemas.profile import StudentProfileIn, StudentProfileOut, TutorProfileIn, TutorProfileOut
+from app.schemas.profile import StudentProfileIn, StudentProfileOut, PaginatedStudentProfileResponse, TutorProfileIn, TutorProfileOut, PaginatedTutorProfileResponse
 from app.schemas.response import ResponseWithMessage, MessageResponse
 from app.crud import profile
 
 router = APIRouter(prefix="/profiles", tags=["Profile"])
+
+@router.get("/students", response_model=PaginatedStudentProfileResponse)
+async def get_all_student_profile(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await profile.getAllStudentProfiles(db, page, limit)
+    return result
 
 @router.get("/students/{user_id}", response_model=StudentProfileOut)
 async def get_student_profile_by_user_id(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
@@ -16,6 +21,11 @@ async def get_student_profile_by_user_id(user_id: uuid.UUID, db: AsyncSession = 
 @router.put("/students/update/{user_id}", response_model=ResponseWithMessage)
 async def update_student_profile(user_id: uuid.UUID, profile_data: StudentProfileIn, db: AsyncSession = Depends(database.get_session)):
     result = await profile.updateStudentProfile(user_id, profile_data, db)
+    return result
+
+@router.get("/tutors", response_model=PaginatedTutorProfileResponse)
+async def get_all_student_profile(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await profile.getAllTutorProfiles(db, page, limit)
     return result
 
 @router.get("/tutors/{user_id}", response_model=TutorProfileOut)
