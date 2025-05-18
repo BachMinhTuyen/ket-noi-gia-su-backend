@@ -21,10 +21,7 @@ async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depe
 
     if not matched_subject:
         return {"message": "Không tìm thấy môn học phù hợp."}
-    print('--------------------------------------------------')
-    print(matched_subject)
-    print(matched_subject.subjectId)
-    print('--------------------------------------------------')
+    
     # Filter classes by subject
     result = await db.execute(
         select(Class).filter(Class.subjectId == matched_subject.subjectId)
@@ -39,11 +36,7 @@ async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depe
             select(Address).filter(Address.classId == c.classId)
         )
         address = address_result.scalars().first()
-        # print('----------------------')
-        # print(address)
-        # print(address.latitude)
-        # print(address.longitude)
-        # print('----------------------')
+        
         if not address or not address.latitude or not address.longitude:
             continue
 
