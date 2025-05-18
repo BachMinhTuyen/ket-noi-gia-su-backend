@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.student_request import PaginatedClassResponse, StudentRequestCreate, StudentRequestUpdate
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 from app.crud import student_request
 from app.core.database import database
 import uuid
@@ -28,7 +28,7 @@ async def get_student_request_by_id(request_id: uuid.UUID, db: AsyncSession = De
     result = await student_request.getStudentRequestById(request_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_student_request(request_data: StudentRequestCreate, db: AsyncSession = Depends(database.get_session)):
     result = await student_request.createStudentRequest(request_data, db)
     return result

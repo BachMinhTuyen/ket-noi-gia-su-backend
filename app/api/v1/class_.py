@@ -4,8 +4,8 @@ import uuid
 
 from app.core.database import database
 from app.crud.class_ import getAllClass, getAllClassByStatus, getClassById, createClass, updateClass, deleteClass
-from app.schemas.class_ import ClassCreate, PaginatedClassResponse, ClassUpdate, ClassOut
-from app.schemas.response import ResponseWithMessage, MessageResponse
+from app.schemas.class_ import ClassCreate, PaginatedClassResponse, ClassUpdate
+from app.schemas.response import ResponseWithMessage, MessageResponse, MessageResponseWithId
 
 router = APIRouter(prefix="/classes", tags=["Class"])
 
@@ -24,7 +24,7 @@ async def get_class_by_id(class_id: uuid.UUID,db: AsyncSession = Depends(databas
     result = await getClassById(class_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_class(class_data: ClassCreate, db: AsyncSession = Depends(database.get_session)):
     result = await createClass(class_data, db)
     return result

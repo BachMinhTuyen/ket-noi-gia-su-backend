@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.crud import tutor_application
 from app.schemas.tutor_application import PaginatedClassResponse, TutorApplicationCreate, TutorApplicationUpdate
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 router = APIRouter(prefix="/tutor-application", tags=["Tutor Application"])
@@ -28,7 +28,7 @@ async def get_all_tutor_applications_by_status(status_id: uuid.UUID, db: AsyncSe
     result = await tutor_application.getAllTutorApplicationByStatus(status_id, db, page, limit)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_tutor_application(application_data: TutorApplicationCreate, db: AsyncSession = Depends(database.get_session)):
     result = await tutor_application.createTutorApplication(application_data, db)
     return result

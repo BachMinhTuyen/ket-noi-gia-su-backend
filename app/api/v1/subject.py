@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.crud.subject import getAllSubjects, createSubject, updateSubject, deleteSubject
 from app.schemas.subject import SubjectCreate, PaginatedSubjectResponse, SubjectUpdate
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 router = APIRouter(prefix="/subjects", tags=["Subject"])
@@ -15,7 +15,7 @@ async def get_all_subjects(db: AsyncSession = Depends(database.get_session), pag
         raise HTTPException(status_code=404, detail="No subjects found")
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_subject(subject_data: SubjectCreate, db: AsyncSession = Depends(database.get_session)):
     result = await createSubject(subject_data, db)
     return result

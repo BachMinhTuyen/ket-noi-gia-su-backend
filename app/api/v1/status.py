@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.status import StatusCreate, PaginatedStatusResponse, StatusUpdate
 from app.crud import status
 from app.core.database import database
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 router = APIRouter(prefix="/status", tags=["Status"])
@@ -16,7 +16,7 @@ async def get_all_payment_status(db: AsyncSession = Depends(database.get_session
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
-@router.post("/payment/create", response_model=MessageResponse)
+@router.post("/payment/create", response_model=MessageResponseWithId)
 async def create_payment_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createPaymentStatus(status_data, db)
     return result
@@ -40,7 +40,7 @@ async def get_all_schedule_status(db: AsyncSession = Depends(database.get_sessio
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
-@router.post("/schedule/create", response_model=MessageResponse)
+@router.post("/schedule/create", response_model=MessageResponseWithId)
 async def create_schedule_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createScheduleStatus(status_data, db)
     return result
@@ -64,7 +64,7 @@ async def get_all_student_request_status(db: AsyncSession = Depends(database.get
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
-@router.post("/student-request/create", response_model=MessageResponse)
+@router.post("/student-request/create", response_model=MessageResponseWithId)
 async def create_student_request_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createStudentRequestStatus(status_data, db)
     return result
@@ -88,7 +88,7 @@ async def get_all_tutor_application_status(db: AsyncSession = Depends(database.g
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
-@router.post("/tutor-application/create", response_model=MessageResponse)
+@router.post("/tutor-application/create", response_model=MessageResponseWithId)
 async def create_tutor_application_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createTutorApplicationStatus(status_data, db)
     return result
@@ -112,7 +112,7 @@ async def get_all_class_status(db: AsyncSession = Depends(database.get_session),
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
-@router.post("/class/create", response_model=MessageResponse)
+@router.post("/class/create", response_model=MessageResponseWithId)
 async def create_class_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createClassStatus(status_data, db)
     return result

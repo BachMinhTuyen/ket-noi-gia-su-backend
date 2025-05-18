@@ -62,7 +62,10 @@ async def createAddress(address_data: AddressCreate, db: AsyncSession = Depends(
     db.add(new_address)
     await db.commit()
     await db.refresh(new_address)
-    return { "message": "Address created successfully"}
+    return { 
+        "message": "Address created successfully",
+        'id':  new_address.addressId
+    }
 
 async def updateAddress(address_id: uuid.UUID, address_data: AddressUpdate, db: AsyncSession = Depends(database.get_session)):
     exiting_address = await db.execute(select(Address).filter(Address.addressId == address_id))

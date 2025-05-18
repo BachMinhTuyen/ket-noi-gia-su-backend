@@ -56,7 +56,10 @@ async def createSchedule(schedule_data: ScheduleCreate, db: AsyncSession):
     res = await db.execute(select(Class).filter(Class.classId == schedule_data.classId))
     current_class = res.scalars().first()
     if not current_class:
-        return {"message": "Class not found"}
+        return {
+            "message": "Class not found",
+            'id':  None
+        }
 
     tutor_id = current_class.tutorId
     # Normalize time
@@ -99,7 +102,10 @@ async def createSchedule(schedule_data: ScheduleCreate, db: AsyncSession):
     conflict = conflict_result.scalars().first()
 
     if conflict:
-        return {"message": "Tutor already has a schedule at this time"}
+        return {
+            "message": "Tutor already has a schedule at this time",
+            'id':  None
+        }
 
     # Create new schedule
     new_schedule = Schedule(
@@ -114,7 +120,10 @@ async def createSchedule(schedule_data: ScheduleCreate, db: AsyncSession):
     )
     db.add(new_schedule)
     await db.commit()
-    return {"message": "Schedules created successfully"}
+    return { 
+        "message": "Schedules created successfully",
+        'id':  new_schedule.scheduleId
+    }
 
 async def createBulkSchedules(schedule_data: BulkScheduleCreate, db: AsyncSession):
     schedules = []

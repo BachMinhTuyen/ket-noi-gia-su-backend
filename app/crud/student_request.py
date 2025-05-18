@@ -85,7 +85,10 @@ async def createStudentRequest(request_data: StudentRequestCreate, db: AsyncSess
     db.add(new_request)
     await db.commit()
     await db.refresh(new_request)
-    return { 'message' : 'Student request created successfully' }
+    return { 
+        'message' : 'Student request created successfully',
+        'id':  new_request.requestId
+    }
 
 async def updateStudentRequest(request_id: uuid.UUID, request_data: StudentRequestUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_request = await db.execute(select(StudentRequest).filter(StudentRequest.requestId == request_id))

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.crud import address
 from app.schemas.address import PaginatedAddressResponse, AddressCreate, AddressUpdate
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 router = APIRouter(prefix="/addresses", tags=["Addresses"])
@@ -18,7 +18,7 @@ async def get_all_addresses_by_user_id_or_request_id_or_class_id(user_request_cl
     result = await address.getAllAddressesById(user_request_class_id, db, page, limit)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_address(address_data: AddressCreate, db: AsyncSession = Depends(database.get_session)):
     result = await address.createAddress(address_data, db)
     return result

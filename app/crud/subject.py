@@ -31,7 +31,10 @@ async def createSubject(subject_data: SubjectCreate, db: AsyncSession = Depends(
     # Check if the subject already exists
     existing_subject = await db.execute(select(Subject).filter(Subject.subjectName_en == subject_data.subjectName_en))
     if existing_subject.scalars().first():
-        return {"message": "Subject already exists"}
+        return {
+            "message": "Subject already exists",
+            'id':  None
+        }
     
     new_subject = Subject(
         subjectName_vi=subject_data.subjectName_vi,
@@ -41,7 +44,10 @@ async def createSubject(subject_data: SubjectCreate, db: AsyncSession = Depends(
     db.add(new_subject)
     await db.commit()
     await db.refresh(new_subject)
-    return {"message": "Subject created successfully"}
+    return { 
+        "message": "Subject created successfully",
+        'id':  new_subject.subjectId
+    }
 
 async def updateSubject(subject_id: uuid.UUID, subject_data: SubjectUpdate, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(Subject).filter(Subject.subjectId == subject_id))

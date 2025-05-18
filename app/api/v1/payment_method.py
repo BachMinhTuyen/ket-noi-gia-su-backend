@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.crud import payment
 from app.schemas.payment import PaginatedPaymentMethodResponse, PaymentMethodCreate, PaymentMethodOut, PaymentMethodUpdate
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 
@@ -20,7 +20,7 @@ async def get_payment_method_by_id(method_id, db: AsyncSession = Depends(databas
     result = await payment.getPaymentMethodById(method_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_payment_method(method_data: PaymentMethodCreate, db: AsyncSession = Depends(database.get_session)):
     result = await payment.createPaymentMethod(method_data, db)
     return result

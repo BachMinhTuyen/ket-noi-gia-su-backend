@@ -97,7 +97,10 @@ async def createTutorApplication(application_data: TutorApplicationCreate, db: A
     student_request = student_request_result.scalars().first()
     
     if not student_request:
-        return {"message": "Student request not found"}
+        return {
+            "message": "Student request not found",
+            'id':  None
+        }
     
     status_result = await db.execute(
         select(StudentRequestStatus).filter(StudentRequestStatus.code == "Pending")
@@ -105,18 +108,27 @@ async def createTutorApplication(application_data: TutorApplicationCreate, db: A
     pending_status = status_result.scalars().first()
 
     if not pending_status or student_request.status != pending_status.statusId:
-        return {"message": "Only requests with 'Pending' status can receive applications"}
+        return {
+            "message": "Only requests with 'Pending' status can receive applications",
+            'id':  None
+        }
     
     # Check if the tutor application already exists
     existing_application = await db.execute(select(TutorApplication).filter(TutorApplication.tutorId == application_data.tutorId))
     if existing_application.scalars().first():
-        return {"message": "Tutor application already exists"}
+        return {
+            "message": "Tutor application already exists",
+            'id':  None
+        }
     
     new_application = TutorApplication(**application_data.dict())
     db.add(new_application)
     await db.commit()
     await db.refresh(new_application)
-    return {"message": "Tutor application created successfully"}
+    return { 
+        "message": "Tutor application created successfully",
+        'id':  new_application.applicationId
+    }
 
 async def updateTutorApplication(application_id: uuid.UUID, application_data: TutorApplicationUpdate, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(TutorApplication).filter(TutorApplication.applicationId == application_id))

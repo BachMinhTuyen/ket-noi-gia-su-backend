@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 from app.schemas.schedule import PaginatedScheduleResponse, BulkScheduleCreate, ScheduleCreate, ScheduleUpdate
 from app.crud import schedule
 import uuid
@@ -18,7 +18,7 @@ async def get_all_schedule_by_id(schedule_id: uuid.UUID, db: AsyncSession = Depe
     result = await schedule.getScheduleById(schedule_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_schedule(schedule_data: ScheduleCreate, db: AsyncSession = Depends(database.get_session)):
     result = await schedule.createSchedule(schedule_data, db)
     return result

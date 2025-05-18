@@ -71,7 +71,10 @@ async def createClass(class_data: ClassCreate, db: AsyncSession = Depends(databa
     db.add(new_class)
     await db.commit()
     await db.refresh(new_class)
-    return { 'message' : 'Class created successfully' }
+    return { 
+        'message' : "Class created successfully",
+        'id':  new_class.classId
+    }
 
 async def updateClass(class_id: uuid.UUID, class_data: ClassUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(Class).filter(Class.classId == class_id))
@@ -211,13 +214,19 @@ async def createClassRegistration(registration_data: ClassRegistrationCreate, db
     result = existing_registration.scalars().first()
 
     if result:
-        return { 'message' : 'Class registration already exists.' }
+        return { 
+            'message' : 'Class registration already exists.',
+            'id':  None
+        }
 
     new_class_registration = ClassRegistration(**registration_data.dict())
     db.add(new_class_registration)
     await db.commit()
     await db.refresh(new_class_registration)
-    return { 'message' : 'Class registration created successfully' }
+    return { 
+        'message' : 'Class registration created successfully',
+        'id':  new_class_registration.registrationId
+    }
 
 
 async def deleteClassRegistration(registration_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):

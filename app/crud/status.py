@@ -33,13 +33,19 @@ async def createPaymentStatus(status_data: StatusCreate, db: AsyncSession = Depe
     exiting_status = await db.execute(select(PaymentStatus).filter(PaymentStatus.code == status_data.code))
     result = exiting_status.scalars().first()
     if result:
-        return { "message": "Status with this code already exists" }
+        return { 
+            "message": "Status with this code already exists",
+            'id':  None
+        }
     
     new_status = PaymentStatus(**status_data.dict())
     db.add(new_status)
     await db.commit()
     await db.refresh(new_status)
-    return { "message": "Status created successfully"}
+    return { 
+        "message": "Status created successfully",
+        'id':  new_status.statusId
+    }
 
 async def updatePaymentStatus(status_id: uuid.UUID, status_data: StatusUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(PaymentStatus).filter(PaymentStatus.statusId == status_id))
@@ -97,13 +103,19 @@ async def createScheduleStatus(status_data: StatusCreate, db: AsyncSession = Dep
     exiting_status = await db.execute(select(ScheduleStatus).filter(ScheduleStatus.code == status_data.code))
     result = exiting_status.scalars().first()
     if result:
-        return { "message": "Status with this code already exists" }
+        return { 
+            "message": "Status with this code already exists",
+            'id':  None
+        }
     
     new_status = ScheduleStatus(**status_data.dict())
     db.add(new_status)
     await db.commit()
     await db.refresh(new_status)
-    return { "message": "Status created successfully"}
+    return { 
+        "message": "Status created successfully",
+        'id':  new_status.statusId
+    }
 
 async def updateScheduleStatus(status_id: uuid.UUID, status_data: StatusUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(ScheduleStatus).filter(ScheduleStatus.statusId == status_id))
@@ -161,13 +173,19 @@ async def createStudentRequestStatus(status_data: StatusCreate, db: AsyncSession
     exiting_status = await db.execute(select(StudentRequestStatus).filter(StudentRequestStatus.code == status_data.code))
     result = exiting_status.scalars().first()
     if result:
-        return { "message": "Status with this code already exists" }
+        return { 
+            "message": "Status with this code already exists",
+            'id':  None
+        }
     
     new_status = StudentRequestStatus(**status_data.dict())
     db.add(new_status)
     await db.commit()
     await db.refresh(new_status)
-    return { "message": "Status created successfully"}
+    return { 
+        "message": "Status created successfully",
+        'id':  new_status.statusId
+    }
 
 async def updateStudentRequestStatus(status_id: uuid.UUID, status_data: StatusUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(StudentRequestStatus).filter(StudentRequestStatus.statusId == status_id))
@@ -225,13 +243,19 @@ async def createTutorApplicationStatus(status_data: StatusCreate, db: AsyncSessi
     exiting_status = await db.execute(select(TutorApplicationStatus).filter(TutorApplicationStatus.code == status_data.code))
     result = exiting_status.scalars().first()
     if result:
-        return { "message": "Status with this code already exists" }
+        return {
+            "message": "Status with this code already exists",
+            'id':  None
+        }
     
     new_status = TutorApplicationStatus(**status_data.dict())
     db.add(new_status)
     await db.commit()
     await db.refresh(new_status)
-    return { "message": "Status created successfully"}
+    return { 
+        "message": "Status created successfully",
+        'id':  new_status.statusId
+    }
 
 async def updateTutorApplicationStatus(status_id: uuid.UUID, status_data: StatusUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(TutorApplicationStatus).filter(TutorApplicationStatus.statusId == status_id))
@@ -289,13 +313,19 @@ async def createClassStatus(status_data: StatusCreate, db: AsyncSession = Depend
     exiting_status = await db.execute(select(ClassStatus).filter(ClassStatus.code == status_data.code))
     result = exiting_status.scalars().first()
     if result:
-        return { "message": "Status with this code already exists" }
+        return { 
+            "message": "Status with this code already exists",
+            'id':  None
+        }
     
     new_status = ClassStatus(**status_data.dict())
     db.add(new_status)
     await db.commit()
     await db.refresh(new_status)
-    return { "message": "Status created successfully"}
+    return { 
+        "message": "Status created successfully",
+        'id':  new_status.statusId
+    }
 
 async def updateClassStatus(status_id: uuid.UUID, status_data: StatusUpdate, db: AsyncSession = Depends(database.get_session)):
     existing_status = await db.execute(select(ClassStatus).filter(ClassStatus.statusId == status_id))

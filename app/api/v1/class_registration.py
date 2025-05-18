@@ -5,7 +5,7 @@ import uuid
 from app.core.database import database
 from app.crud.class_ import getAllClassRegistration, getAllClassRegistrationByStudent, getAllClassRegistrationByClass, getClassRegistrationById, createClassRegistration, deleteClassRegistration
 from app.schemas.class_ import ClassRegistrationCreate, PaginatedClassRegistrationResponse, ClassRegistrationOut
-from app.schemas.response import ResponseWithMessage, MessageResponse
+from app.schemas.response import ResponseWithMessage, MessageResponse, MessageResponseWithId
 
 router = APIRouter(prefix="/class-registration", tags=["Class Registration"])
 
@@ -29,7 +29,7 @@ async def get_class_registration_by_id(registration_id: uuid.UUID,db: AsyncSessi
     result = await getClassRegistrationById(registration_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_class(registration_data: ClassRegistrationCreate, db: AsyncSession = Depends(database.get_session)):
     result = await createClassRegistration(registration_data, db)
     return result

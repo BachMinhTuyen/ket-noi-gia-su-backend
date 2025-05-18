@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.crud import payment
 from app.schemas.payment import PaymentOrderOut, PaymentOrderCreate, PaymentOrderUpdate, PaginatedPaymentOrderResponse
-from app.schemas.response import MessageResponse, ResponseWithMessage
+from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
 import uuid
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
@@ -18,7 +18,7 @@ async def get_payment_order_by_payment_id_or_registation_id(payment_registration
     result = await payment.getPaymentOrderById(payment_registration_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponse)
+@router.post('/create', response_model=MessageResponseWithId)
 async def create_payment_order(payment_data: PaymentOrderCreate, db: AsyncSession = Depends(database.get_session)):
     result = await payment.createPaymentOrder(payment_data, db)
     return result

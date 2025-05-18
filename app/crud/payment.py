@@ -44,7 +44,10 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
     exiting_payment = await db.execute(select(Payment).filter(Payment.registrationId == payment_data.registrationId))
     result = exiting_payment.scalars().first()
     if result:
-        return { "message": "Payment order already exists" }
+        return { 
+            "message": "Payment order already exists",
+            'id':  None
+        }
     
     # Get payment status
     res = await db.execute(select(PaymentStatus).filter(PaymentStatus.code == "Unpaid"))
@@ -74,7 +77,10 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
     db.add(new_payment_order)
     await db.commit()
     await db.refresh(new_payment_order)
-    return { "message": "Payment order created successfully"}
+    return { 
+        "message": "Payment order created successfully",
+        'id':  new_payment_order.paymentId
+    }
 
 async def updatePaymentOrder(payment_id: uuid.UUID, payment_data: PaymentOrderUpdate, db: AsyncSession = Depends(database.get_session)):
     exiting_payment = await db.execute(select(Payment).filter(Payment.paymentId == payment_id))
@@ -138,14 +144,20 @@ async def createPaymentMethod(method_data: PaymentMethodCreate, db: AsyncSession
     exiting_method = await db.execute(select(PaymentMethod).filter(PaymentMethod.methodName == method_data.methodName))
     result = exiting_method.scalars().first()
     if result:
-        return { "message": "Payment method already exists" }
+        return { 
+            "message": "Payment method already exists",
+            'id':  None
+        }
     
     new_method_method = PaymentMethod(**method_data.dict())
     
     db.add(new_method_method)
     await db.commit()
     await db.refresh(new_method_method)
-    return { "message": "Payment method created successfully"}
+    return { 
+        "message": "Payment method created successfully",
+        'id':  new_method_method.methodId
+    }
 
 async def activatePaymentMethod(method_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     exiting_method = await db.execute(select(PaymentMethod).filter(PaymentMethod.methodId == method_id))
