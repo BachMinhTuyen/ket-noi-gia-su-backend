@@ -1,8 +1,14 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
 import uuid
+
+class ClassSearchInput(BaseModel):
+    keyword: str
+    latitude: float
+    longitude: float
+    limit: Optional[int] = 10
 
 class ClassCreate(BaseModel):
     className_vi: Optional[str] = None
@@ -63,6 +69,16 @@ class PaginatedClassResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MatchingClassResult(BaseModel):
+    class_: ClassOut
+    distance_km: float
+    similarity: float
+    matching_score: float
+
+class MatchingClassResponse(BaseModel):
+    results: Optional[List[MatchingClassResult]] = None
+    message: Optional[str] = None
 
 
 

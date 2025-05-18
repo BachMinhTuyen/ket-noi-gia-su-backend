@@ -3,10 +3,85 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 import uuid
 
+from app.core.similarity import compute_cosine_similarity, find_matching_subject
+from app.core.distance import haversine
 from app.core.database import database
-from app.models import Class, Schedule, Address, Evaluation, ClassRegistration
-from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut
+from app.models import Class, Schedule, Address, Evaluation, ClassRegistration, Subject, TutorProfile
+from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut, ClassSearchInput
 from app.schemas.response import ResponseWithMessage
+
+async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depends(database.get_session)):
+    keyword = search_data.keyword.lower()
+    # Get subjects
+    subject_result = await db.execute(select(Subject))
+    subjects = subject_result.scalars().all()
+    # matched_subject = None
+
+    matched_subject = await find_matching_subject(keyword, subjects)
+
+    if not matched_subject:
+        return {"message": "Không tìm thấy môn học phù hợp."}
+    print('--------------------------------------------------')
+    print(matched_subject)
+    print(matched_subject.subjectId)
+    print('--------------------------------------------------')
+    # Filter classes by subject
+    result = await db.execute(
+        select(Class).filter(Class.subjectId == matched_subject.subjectId)
+    )
+    class_list = result.scalars().all()
+    
+    scores = []
+
+    for c in class_list:
+        # Find the coordinates of this class
+        address_result = await db.execute(
+            select(Address).filter(Address.classId == c.classId)
+        )
+        address = address_result.scalars().first()
+        # print('----------------------')
+        # print(address)
+        # print(address.latitude)
+        # print(address.longitude)
+        # print('----------------------')
+        if not address or not address.latitude or not address.longitude:
+            continue
+
+        # Calculate destination
+        distance = await haversine(search_data.latitude, search_data.longitude, address.latitude, address.longitude)
+
+        # 5. Calculate similarity between keyword and description (tutor, class name and subjects)
+        tutor_result = await db.execute(
+            select(TutorProfile).filter(TutorProfile.userId == c.tutorId)
+        )
+        tutor = tutor_result.scalars().first()
+        description = f"{tutor.description} {c.className_vi} {c.className_en} {c.description}"
+        similarity_score = await compute_cosine_similarity(description, keyword)
+
+        # Suppose 10km is far
+        # If the destination is more than 10km away, it will switch to measuring suitability. 
+        score = similarity_score * 0.7 + (1 - min(distance / 10, 1)) * 0.3 
+
+        scores.append({
+            "class_": c,
+            "distance": round(distance, 2),
+            "similarity": round(similarity_score, 2),
+            "score": round(score, 3)
+        })
+
+    sorted_result = sorted(scores, key=lambda x: x["score"], reverse=True)
+
+    return {
+        "results": [
+            {
+                "class_": ClassOut.model_validate(item["class_"]),
+                "distance_km": item["distance"],
+                "similarity": item["similarity"],
+                "matching_score": item["score"]
+            }
+            for item in sorted_result[:search_data.limit]
+        ]
+    }
 
 async def getAllClass(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
     offset = (page - 1) * limit

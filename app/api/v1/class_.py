@@ -3,11 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 
 from app.core.database import database
-from app.crud.class_ import getAllClass, getAllClassByStatus, getClassById, createClass, updateClass, deleteClass
-from app.schemas.class_ import ClassCreate, PaginatedClassResponse, ClassUpdate
+from app.crud.class_ import getAllClass, getAllClassByStatus, getClassById, createClass, updateClass, deleteClass, findBestClasses
+from app.schemas.class_ import ClassCreate, PaginatedClassResponse, ClassUpdate, ClassSearchInput, MatchingClassResponse
 from app.schemas.response import ResponseWithMessage, MessageResponse, MessageResponseWithId
 
 router = APIRouter(prefix="/classes", tags=["Class"])
+
+@router.post('/find-best-classes', response_model=MatchingClassResponse)
+async def find_best_classes(search_data: ClassSearchInput, db: AsyncSession = Depends(database.get_session)):
+    result = await findBestClasses(search_data, db)
+    return result
 
 @router.get('/', response_model=PaginatedClassResponse)
 async def get_all_class(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
