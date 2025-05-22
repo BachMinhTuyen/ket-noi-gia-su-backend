@@ -7,7 +7,7 @@ class MessageResponse(BaseModel):
 
 class MessageResponseWithId(BaseModel):
     message: str
-    id: uuid.UUID
+    id: Optional[uuid.UUID] = None
 
 class ResponseWithMessage(BaseModel):
     message: str
