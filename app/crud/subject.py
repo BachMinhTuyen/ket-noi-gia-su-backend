@@ -27,6 +27,12 @@ async def getAllSubjects(db: AsyncSession = Depends(database.get_session), page:
         "data": data
     }
 
+async def getSubjectById(subject_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    res = await db.execute(select(Subject).filter(Subject.subjectId == subject_id))
+    data = res.scalars().first()
+    
+    return data
+
 async def createSubject(subject_data: SubjectCreate, db: AsyncSession = Depends(database.get_session)):
     # Check if the subject already exists
     existing_subject = await db.execute(select(Subject).filter(Subject.subjectName_en == subject_data.subjectName_en))
