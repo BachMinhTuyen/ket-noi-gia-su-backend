@@ -11,6 +11,7 @@ class Schedule(Base):
     zoomUrl = Column(Text)
     zoomMeetingId = Column(String(50))
     zoomPassword = Column(String(50))
+    zoomStartUrl = Column(Text)
     dayStudying = Column(Date)
     startTime = Column(Time)
     endTime = Column(Time)

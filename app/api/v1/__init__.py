@@ -15,10 +15,12 @@ from . import (
     payment,
     payment_method,
     address,
+    zoom,
 )
 
 router = APIRouter()
 router.include_router(calculate.router)
+router.include_router(zoom.router)
 router.include_router(auth.router)
 router.include_router(role.router)
 router.include_router(user.router)

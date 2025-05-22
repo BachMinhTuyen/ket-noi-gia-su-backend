@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
+    ZOOM_ACCOUNT_ID: str
+    ZOOM_CLIENT_ID: str
+    ZOOM_CLIENT_SECRET: str
+
     class Config:
         env_file = Path(__file__).resolve().parents[2] / ".env"
         env_file_encoding = "utf-8"
