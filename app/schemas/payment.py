@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from fastapi import UploadFile, File
 from typing import Optional, List
 from decimal import Decimal
 from datetime import datetime
@@ -47,15 +48,13 @@ class PaymentMethodOut(BaseModel):
     description: Optional[str] = None
     isActive: Optional[bool] = False
     logoUrl: Optional[str] = None
+    logoPublicId: Optional[str] = None
 
     class Config:
         from_attributes = True
 
-class PaymentMethodCreate(BaseModel):
-    methodName: str
-    description: Optional[str] = None
-    isActive: Optional[bool] = None
-    logoUrl: Optional[str] = None
+class UpdateActiveStatus(BaseModel):
+    isActive: bool
 
     class Config:
         from_attributes = True
@@ -66,6 +65,7 @@ class PaymentMethodUpdate(BaseModel):
     description: Optional[str] = None
     isActive: Optional[bool] = False
     logoUrl: Optional[str] = None
+    logoPublicId: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -12,7 +12,7 @@ class PaymentMethod(Base):
     description = Column(Text)
     isActive = Column(Boolean, default=False)
     logoUrl = Column(Text)
-
+    logoPublicId = Column(Text)
 
 class Payment(Base):
     __tablename__ = 'Payment'
