@@ -169,6 +169,11 @@ async def getAllStudentRequestStatus(db: AsyncSession = Depends(database.get_ses
         "data": data
     }
 
+async def getStudentRequestStatusByCode(code: str, db: AsyncSession = Depends(database.get_session)):
+    res = await db.execute(select(StudentRequestStatus).filter(StudentRequestStatus.code == code))
+    data = res.scalars().first()
+    return data
+
 async def createStudentRequestStatus(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     exiting_status = await db.execute(select(StudentRequestStatus).filter(StudentRequestStatus.code == status_data.code))
     result = exiting_status.scalars().first()
@@ -308,6 +313,11 @@ async def getAllClassStatus(db: AsyncSession = Depends(database.get_session), pa
         },
         "data": data
     }
+
+async def getClassStatusByCode(code: str, db: AsyncSession = Depends(database.get_session)):
+    res = await db.execute(select(ClassStatus).filter(ClassStatus.code == code))
+    data = res.scalars().first()
+    return data
 
 async def createClassStatus(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     exiting_status = await db.execute(select(ClassStatus).filter(ClassStatus.code == status_data.code))

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.status import StatusCreate, PaginatedStatusResponse, StatusUpdate
+from app.schemas.status import StatusCreate, PaginatedStatusResponse, StatusUpdate, StatusOut
 from app.crud import status
 from app.core.database import database
 from app.schemas.response import MessageResponse, ResponseWithMessage, MessageResponseWithId
@@ -64,6 +64,13 @@ async def get_all_student_request_status(db: AsyncSession = Depends(database.get
         raise HTTPException(status_code=404, detail="No status found")
     return result
 
+@router.get("/student-request/get-by-code/{code}", response_model=StatusOut)
+async def get_student_request_status_by_code(code: str, db: AsyncSession = Depends(database.get_session)):
+    result = await status.getStudentRequestStatusByCode(code, db)
+    if not result:
+        raise HTTPException(status_code=404, detail="No status found")
+    return result
+
 @router.post("/student-request/create", response_model=MessageResponseWithId)
 async def create_student_request_status(status_data: StatusCreate, db: AsyncSession = Depends(database.get_session)):
     result = await status.createStudentRequestStatus(status_data, db)
@@ -108,6 +115,13 @@ async def delete_tutor_application_status(status_id: uuid.UUID, db: AsyncSession
 @router.get("/class", response_model=PaginatedStatusResponse)
 async def get_all_class_status(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     result = await status.getAllClassStatus(db, page, limit)
+    if not result:
+        raise HTTPException(status_code=404, detail="No status found")
+    return result
+
+@router.get("/class/get-by-code/{code}", response_model=StatusOut)
+async def get_class_status_by_code(code: str, db: AsyncSession = Depends(database.get_session)):
+    result = await status.getClassStatusByCode(code, db)
     if not result:
         raise HTTPException(status_code=404, detail="No status found")
     return result

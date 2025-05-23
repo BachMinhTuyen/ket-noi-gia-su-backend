@@ -23,6 +23,11 @@ async def get_all_student_request_by_user(user_id: uuid.UUID, db: AsyncSession =
     result = await student_request.getAllStudentRequestByUser(user_id, db, page, limit)
     return result
 
+@router.get('/get-by-status/{status_id}', response_model=PaginatedClassResponse)
+async def get_all_student_request_by_status(status_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await student_request.getAllStudentRequestByStatus(status_id, db, page, limit)
+    return result
+
 @router.get('/{request_id}', response_model=ResponseWithMessage)
 async def get_student_request_by_id(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await student_request.getStudentRequestById(request_id, db)

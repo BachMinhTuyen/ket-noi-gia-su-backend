@@ -67,6 +67,26 @@ async def getAllStudentRequestByUser(user_id: uuid.UUID, db: AsyncSession = Depe
         "data": data
     }
 
+async def getAllStudentRequestByStatus(status_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count()).select_from(StudentRequest).filter(StudentRequest.status == status_id))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(StudentRequest).filter(StudentRequest.status == status_id).offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1 ) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
 async def getStudentRequestById(request_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     res = await db.execute(select(StudentRequest).filter(StudentRequest.requestId == request_id))
     data = res.scalars().first()
