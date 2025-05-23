@@ -32,16 +32,25 @@ async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depe
 
     for c in class_list:
         # Find the coordinates of this class
-        address_result = await db.execute(
+        class_address_result = await db.execute(
             select(Address).filter(Address.classId == c.classId)
         )
-        address = address_result.scalars().first()
+        class_address = class_address_result.scalars().first()
         
-        if not address or not address.latitude or not address.longitude:
+        if not class_address or not class_address.latitude or not class_address.longitude:
             continue
 
+        # Find the coordinates of this user
+        user_address_result = await db.execute(
+            select(Address).filter(Address.userId == search_data.userId)
+        )
+        user_address = user_address_result.scalars().first()
+        
+        if not user_address or not user_address.latitude or not user_address.longitude:
+            return {"message": "Không tìm thấy địa chỉ người dùng."}
+
         # Calculate destination
-        distance = await haversine(search_data.latitude, search_data.longitude, address.latitude, address.longitude)
+        distance = await haversine(user_address.latitude, user_address.longitude, class_address.latitude, class_address.longitude)
 
         # 5. Calculate similarity between keyword and description (tutor, class name and subjects)
         tutor_result = await db.execute(

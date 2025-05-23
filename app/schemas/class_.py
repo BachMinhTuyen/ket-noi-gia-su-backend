@@ -6,8 +6,7 @@ import uuid
 
 class ClassSearchInput(BaseModel):
     keyword: str
-    latitude: float
-    longitude: float
+    userId: Optional[uuid.UUID] = None
     limit: Optional[int] = 10
 
 class ClassCreate(BaseModel):
