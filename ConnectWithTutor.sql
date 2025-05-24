@@ -135,9 +135,11 @@ CREATE TABLE "ClassRegistration" (
 CREATE TABLE "Schedule" (
   "scheduleId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "classId" UUID NOT NULL,
+  "zoomStartUrl" TEXT,
   "zoomUrl" TEXT,
   "zoomMeetingId" VARCHAR(50),
   "zoomPassword" VARCHAR(50),
+  "zoomPublicId" VARCHAR(50),
   "dayStudying" DATE,
   "startTime" TIME,
   "endTime" TIME,
@@ -149,7 +151,8 @@ CREATE TABLE "PaymentMethod" (
   "methodName" VARCHAR(50) NOT NULL,
   "description" TEXT,
   "isActive" BOOL,
-  "logoUrl" TEXT
+  "logoUrl" TEXT,
+  "logoPublicId" TEXT
 );
 
 CREATE TABLE "Payment" (
@@ -198,6 +201,22 @@ CREATE TABLE "Address" (
   "fullAddress" VARCHAR(255),
   "latitude" DECIMAL(10,8),
   "longitude" DECIMAL(11,8)
+);
+
+CREATE TABLE "ComplaintType" (
+  "complaintTypeId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "name" VARCHAR(100),
+  "description" TEXT
+);
+
+CREATE TABLE "Complaint" (
+  "complaintId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID,
+  "complaintTypeId" UUID,
+  "title" VARCHAR(100),
+  "content" TEXT,
+  "status" VARCHAR(50),
+  "createdAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "Conversation" (
@@ -314,6 +333,10 @@ ALTER TABLE "Schedule" ADD CONSTRAINT "FK_Schedule_Status" FOREIGN KEY ("status"
 
 ALTER TABLE "Payment" ADD CONSTRAINT "FK_Payment_Status" FOREIGN KEY ("status") REFERENCES "PaymentStatus" ("statusId");
 
+ALTER TABLE "Complaint" ADD CONSTRAINT "FK_Complaint_ComplaintType" FOREIGN KEY ("complaintTypeId") REFERENCES "ComplaintType" ("complaintTypeId");
+
+ALTER TABLE "Complaint" ADD CONSTRAINT "FK_Complaint_User" FOREIGN KEY ("userId") REFERENCES "User" ("userId");
+
 -- Chèn dữ liệu mặc định cho PaymentStatus
 INSERT INTO "PaymentStatus" ("code", "name")
 VALUES
@@ -354,3 +377,14 @@ VALUES
   ('Open', 'Lớp học đang mở để học viên đăng ký'),
   ('Full', 'Lớp học đã đủ số lượng học viên'),
   ('Cancelled', 'Hủy lớp vì 1 số lý do nào đó');
+
+-- Chèn dữ liệu mặc định cho ComplaintType
+INSERT INTO "ComplaintType" ("name", "description")
+VALUES
+  ('Lịch học', 'Vấn đề liên quan đến thời gian, lịch học bị thay đổi hoặc hủy mà không báo trước'),
+  ('Thanh toán', 'Khiếu nại liên quan đến việc thanh toán học phí, hoàn tiền, hoặc hóa đơn không chính xác'),
+  ('Chất lượng giảng dạy', 'Gia sư không đảm bảo chất lượng hoặc không đúng như mô tả ban đầu'),
+  ('Kỹ thuật/Zoom', 'Vấn đề kỹ thuật khi tham gia học online như link Zoom không hoạt động hoặc âm thanh kém'),
+  ('Hủy lớp', 'Khiếu nại về việc lớp học bị hủy mà không có lý do rõ ràng hoặc không được hoàn tiền'),
+  ('Thông báo/Thông tin sai lệch', 'Thông tin mô tả lớp, yêu cầu, lịch học không chính xác'),
+  ('Khác', 'Các vấn đề khác không thuộc các loại trên');
