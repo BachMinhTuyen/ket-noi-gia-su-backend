@@ -18,6 +18,7 @@ class Complaint(Base):
     complaintTypeId = Column(UUID(as_uuid=True), ForeignKey('ComplaintType.complaintTypeId'))
     title = Column(String(100))
     content = Column(Text)
+    resolutionNote = Column(Text)
     status = Column(String(50))
     createdAt = Column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))
     

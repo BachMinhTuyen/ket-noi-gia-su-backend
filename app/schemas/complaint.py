@@ -11,6 +11,7 @@ class ComplaintOut(BaseModel):
     complaintTypeId: Optional[uuid.UUID] = None
     title: Optional[str] = None
     content: Optional[str] = None
+    resolutionNote: Optional[str] = None
     status: Optional[str] = None
     createdAt: Optional[datetime] = None
 
@@ -31,6 +32,7 @@ class ComplaintUpdate(BaseModel):
     complaintTypeId: Optional[uuid.UUID] = None
     title: Optional[str] = None
     content: Optional[str] = None
+    resolutionNote: Optional[str] = None
     status: Optional[str] = None
 
     class Config:
