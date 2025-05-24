@@ -43,6 +43,7 @@ class User(Base):
     conversation_participants = relationship("ConversationParticipant", back_populates="user")
     sent_messages = relationship("Message", back_populates="sender")
     message_statuses = relationship("MessageStatus", back_populates="user")
+    complaints = relationship("Complaint", back_populates="user")
 
 class UserSocialAccount(Base):
     __tablename__ = "UserSocialAccount"
