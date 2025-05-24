@@ -13,7 +13,7 @@ async def getAllStudentRequest(db: AsyncSession = Depends(database.get_session),
     total_result = await db.execute(select(func.count()).select_from(StudentRequest))
     total_items = total_result.scalar()
 
-    result = await db.execute(select(StudentRequest).offset(offset).limit(limit))
+    result = await db.execute(select(StudentRequest).order_by(StudentRequest.createdAt.desc()).offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1 ) // limit
@@ -33,7 +33,10 @@ async def getAllStudentRequestByLocation(location: str, db: AsyncSession = Depen
     total_result = await db.execute(select(func.count()).select_from(StudentRequest).filter(StudentRequest.location == location))
     total_items = total_result.scalar()
 
-    result = await db.execute(select(StudentRequest).filter(StudentRequest.location == location).offset(offset).limit(limit))
+    result = await db.execute(select(StudentRequest)
+                            .filter(StudentRequest.location == location)
+                            .order_by(StudentRequest.createdAt.desc())
+                            .offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1 ) // limit
@@ -53,7 +56,10 @@ async def getAllStudentRequestByUser(user_id: uuid.UUID, db: AsyncSession = Depe
     total_result = await db.execute(select(func.count()).select_from(StudentRequest).filter(StudentRequest.studentId == user_id))
     total_items = total_result.scalar()
 
-    result = await db.execute(select(StudentRequest).filter(StudentRequest.studentId == user_id).offset(offset).limit(limit))
+    result = await db.execute(select(StudentRequest)
+                            .filter(StudentRequest.studentId == user_id)
+                            .order_by(StudentRequest.createdAt.desc())
+                            .offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1 ) // limit
@@ -73,7 +79,10 @@ async def getAllStudentRequestByStatus(status_id: uuid.UUID, db: AsyncSession = 
     total_result = await db.execute(select(func.count()).select_from(StudentRequest).filter(StudentRequest.status == status_id))
     total_items = total_result.scalar()
 
-    result = await db.execute(select(StudentRequest).filter(StudentRequest.status == status_id).offset(offset).limit(limit))
+    result = await db.execute(select(StudentRequest)
+                            .filter(StudentRequest.status == status_id)
+                            .order_by(StudentRequest.createdAt.desc())
+                            .offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1 ) // limit
