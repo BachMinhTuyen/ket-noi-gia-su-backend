@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from fastapi import Depends
 import uuid
 from app.core.database import database
@@ -114,7 +114,10 @@ async def createTutorApplication(application_data: TutorApplicationCreate, db: A
         }
     
     # Check if the tutor application already exists
-    existing_application = await db.execute(select(TutorApplication).filter(TutorApplication.tutorId == application_data.tutorId))
+    existing_application = await db.execute(select(TutorApplication).filter(and_(
+        TutorApplication.tutorId == application_data.tutorId,
+        TutorApplication.requestId == application_data.requestId
+    )))
     if existing_application.scalars().first():
         return {
             "message": "Tutor application already exists",
