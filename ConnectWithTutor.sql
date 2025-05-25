@@ -98,7 +98,7 @@ CREATE TABLE "StudentRequest" (
   "status" UUID NOT NULL,
   "title" TEXT,
   "studentCount" INT DEFAULT 1,
-  "createAt" TIMESTAMPTZ
+  "createdAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "TutorApplication" (
@@ -158,7 +158,7 @@ CREATE TABLE "Payment" (
   "paymentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "registrationId" UUID NOT NULL,
   "amount" DECIMAL(10,2),
-  "paymentDate" TIMESTAMPTZ,
+  "paidAt" TIMESTAMPTZ,
   "methodId" UUID NOT NULL,
   "status" UUID NOT NULL
 );
