@@ -51,4 +51,4 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/", tags=["Root"])
 def read_root():
-    return {"Hello": "World"}
+    return {"message": "FastAPI + PostgreSQL is working!"}

@@ -98,7 +98,7 @@ CREATE TABLE "StudentRequest" (
   "status" UUID NOT NULL,
   "title" TEXT,
   "studentCount" INT DEFAULT 1,
-  "createAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  "createAt" TIMESTAMPTZ
 );
 
 CREATE TABLE "TutorApplication" (
@@ -139,7 +139,6 @@ CREATE TABLE "Schedule" (
   "zoomUrl" TEXT,
   "zoomMeetingId" VARCHAR(50),
   "zoomPassword" VARCHAR(50),
-  "zoomPublicId" VARCHAR(50),
   "dayStudying" DATE,
   "startTime" TIME,
   "endTime" TIME,
