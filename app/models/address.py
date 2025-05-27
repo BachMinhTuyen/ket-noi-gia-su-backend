@@ -16,6 +16,6 @@ class Address(Base):
     street = Column(String(100))
     fullAddress = Column(String(255))
     latitude = Column(DECIMAL(10, 8))
-    longitude = Column(DECIMAL(11, 8))
+    longitude = Column(DECIMAL(20, 17))
     
     user = relationship("User", back_populates="addresses")

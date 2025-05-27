@@ -199,7 +199,7 @@ CREATE TABLE "Address" (
   "street" VARCHAR(100),
   "fullAddress" VARCHAR(255),
   "latitude" DECIMAL(10,8),
-  "longitude" DECIMAL(11,8)
+  "longitude" DECIMAL(20,17)
 );
 
 CREATE TABLE "ComplaintType" (
