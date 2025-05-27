@@ -24,7 +24,9 @@ class AddressCreate(BaseModel):
     classId: Optional[uuid.UUID] = None
     requestId: Optional[uuid.UUID] = None
     fullAddress: Optional[str] = None
-
+    latitude: Optional[Decimal] = None
+    longitude: Optional[Decimal] = None
+    
     class Config:
         from_attributes = True
 
