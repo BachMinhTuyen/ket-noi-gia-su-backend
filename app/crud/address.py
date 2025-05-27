@@ -1,6 +1,6 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import func, select, and_, not_, or_
 from app.core.database import database
 from app.models import Address
 from app.schemas.address import AddressOut, AddressCreate, AddressUpdate
@@ -14,6 +14,31 @@ async def getAllAddresses(db: AsyncSession = Depends(database.get_session), page
     total_items = total_result.scalar()
 
     result = await db.execute(select(Address).order_by(Address.province).offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getRequestAddressesList(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    condition = and_(Address.requestId.is_not(None))
+
+    total_result = await db.execute(select(func.count()).select_from(Address).filter(condition))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(Address)
+                            .filter(condition)
+                            .order_by(Address.fullAddress.desc())
+                            .offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1) // limit

@@ -14,6 +14,11 @@ async def get_all_addresses(db: AsyncSession = Depends(database.get_session), pa
     result = await address.getAllAddresses(db, page, limit)
     return result
 
+@router.get("/get-request-addresses-list", response_model=PaginatedAddressResponse)
+async def get_request_addresses_list(db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await address.getRequestAddressesList(db, page, limit)
+    return result
+
 @router.get("/get-by-id/{user_request_class_id}", response_model=PaginatedAddressResponse)
 async def get_all_addresses_by_user_id_or_request_id_or_class_id(user_request_class_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     result = await address.getAllAddressesById(user_request_class_id, db, page, limit)
