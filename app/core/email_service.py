@@ -32,7 +32,37 @@ async def send_verification_email(
     background_tasks: BackgroundTasks,
     ) -> JSONResponse:
     verification_link = f"{settings.FRONTEND_URL}/activate/{user_id}"
-    html = f"""<p>Click the link to activate your account: {verification_link}</p> """
+    html = f"""
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center; padding: 20px 0; background-color: #1e88e5; border-radius: 12px 12px 0 0; color: #ffffff;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 6; font-weight: 500;">
+                Kích Hoạt Tài Khoản Của Bạn
+            </h1>
+        </div>
+        <div style="padding: 30px; text-align: center;">
+            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px;">Chào mừng bạn đến với nền tảng 
+                <span style="color: #1e88e5; font-weight: 500;">KẾT NỐI GIA SƯ</span>
+                !
+            </p>
+            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+                Vui lòng nhấp vào liên kết bên dưới để kích hoạt tài khoản của bạn và bắt đầu trải nghiệm:
+            </p>
+            <a href="{verification_link}" 
+            style="display: inline-block; padding: 14px 28px; background-color: #1e88e5; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: background-color 0.3s ease; ">
+                Kích Hoạt Tài Khoản
+            </a>
+            <p style="font-size: 16px; line-height: 1.6; margin: 20px 0 0;">
+            Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email này.
+            </p>
+        </div>
+        <div style="text-align: center; padding: 20px; font-size: 14px; color: #777;">
+            <p style="color: #1e88e5; text-decoration: none;">
+                Cảm ơn bạn đã chọn chúng tôi! Nếu cần hỗ trợ, hãy liên hệ qua 
+                <a href="contact">contact@bachminhtuyen.id.vn</a>.
+            </p>
+        </div>
+    </div>
+    """
     message = MessageSchema(
         subject="Activate your account",
         recipients=email.dict().get("email"),
