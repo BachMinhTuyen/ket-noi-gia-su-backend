@@ -11,7 +11,7 @@ class Class(Base):
     className_vi = Column(String(100))
     className_en = Column(String(100))
     subjectId = Column(UUID(as_uuid=True), ForeignKey('Subject.subjectId'), nullable=False)
-    tutorId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=False)
+    tutorId = Column(UUID(as_uuid=True), ForeignKey('User.userId'), nullable=True)
     studyType = Column(String(20))
     startDate = Column(Date)
     sessions = Column(Integer)

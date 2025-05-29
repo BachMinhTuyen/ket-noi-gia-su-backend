@@ -115,7 +115,7 @@ CREATE TABLE "Class" (
   "className_vi" VARCHAR(100),
   "className_en" VARCHAR(100),
   "subjectId" UUID NOT NULL,
-  "tutorId" UUID NOT NULL,
+  "tutorId" UUID,
   "studyType" VARCHAR(20),
   "startDate" DATE,
   "sessions" INT,
