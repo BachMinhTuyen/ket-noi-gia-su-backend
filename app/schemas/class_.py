@@ -30,7 +30,7 @@ class ClassOut(BaseModel):
     classId: uuid.UUID
     className_vi: Optional[str] = None
     className_en: Optional[str] = None
-    tutorId: uuid.UUID
+    tutorId: Optional[uuid.UUID] = None
     createdBy: uuid.UUID
     subjectId: uuid.UUID
     studyType: Optional[str] = None
