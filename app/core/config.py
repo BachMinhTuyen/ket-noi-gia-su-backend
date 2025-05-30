@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     ZOOM_CLIENT_ID: str
     ZOOM_CLIENT_SECRET: str
 
+    VNPAY_RETURN_URL: str
+    VNPAY_PAYMENT_URL: str
+    VNPAY_API_URL: str
+    VNPAY_TMN_CODE: str
+    VNPAY_HASH_SECRET_KEY: str
+
     class Config:
         env_file = Path(__file__).resolve().parents[2] / ".env"
         env_file_encoding = "utf-8"

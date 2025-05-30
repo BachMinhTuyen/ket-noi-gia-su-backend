@@ -17,6 +17,12 @@ class PaymentOrderOut(BaseModel):
 
 class PaymentOrderCreate(BaseModel):
     registrationId: uuid.UUID
+
+    class Config:
+        from_attributes = True
+
+class PayOrderData(BaseModel):
+    paymentId: uuid.UUID
     methodId: uuid.UUID
 
     class Config:

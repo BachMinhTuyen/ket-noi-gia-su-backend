@@ -1,15 +1,17 @@
-from fastapi import Depends, UploadFile, File, Form
+from fastapi import Depends, UploadFile, File, Form, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from typing import Optional
 from app.core.database import database
+from app.deps.vnpay_utils import VNPAY
 from app.core.cloudinary_config import *
 import cloudinary.uploader
-from app.models import PaymentStatus, Payment, PaymentMethod, Class, ClassRegistration
-from app.schemas.payment import PaymentOrderCreate, PaymentOrderUpdate, PaymentOrderOut, UpdateActiveStatus, PaymentMethodUpdate, PaymentMethodOut
+from datetime import datetime
+from decimal import Decimal
+from app.models import PaymentStatus, Payment, PaymentMethod, Class, ClassRegistration, Schedule
+from app.schemas.payment import PayOrderData, PaymentOrderCreate, PaymentOrderUpdate, PaymentOrderOut, UpdateActiveStatus, PaymentMethodUpdate, PaymentMethodOut
 from app.schemas.response import ResponseWithMessage
 import uuid
-
 
 async def getAllPaymentOrders(db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
@@ -43,6 +45,7 @@ async def getPaymentOrderById(payment_registration_id: uuid.UUID, db: AsyncSessi
     return data
 
 async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession = Depends(database.get_session)):
+
     exiting_payment = await db.execute(select(Payment).filter(Payment.registrationId == payment_data.registrationId))
     result = exiting_payment.scalars().first()
     if result:
@@ -61,27 +64,94 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
     )
     registration = registration_res.scalars().first()
 
+    # Get "VNPAY" method make default value
+    method_res = await db.execute(select(PaymentMethod).filter(PaymentMethod.methodName == "VNPAY"))
+    vnpay_method = method_res.scalars().first()
+    
     # Get class
     class_res = await db.execute(
         select(Class).filter(Class.classId == registration.classId)
     )
     class_obj = class_res.scalars().first()
 
+    # Get first schedule of this class to calculate hours
+    schedule_res = await db.execute(
+        select(Schedule).filter(Schedule.classId == registration.classId)
+    )
+    schedule_obj = schedule_res.scalars().first()
+
+    today = datetime.today().date()
+    start_dt = datetime.combine(today, schedule_obj.startTime)
+    end_dt = datetime.combine(today, schedule_obj.endTime)
+
+    duration = end_dt - start_dt  # timedelta type
+    hours = duration.total_seconds() / 3600
+    hours_decimal = Decimal(str(hours))
+
     # Calculate total amount
-    total_amount = class_obj.tuitionFee * class_obj.sessions
+    total_amount = class_obj.tuitionFee * class_obj.sessions * hours_decimal
 
     # Create new payment order
     new_payment_order = Payment(
         **payment_data.dict(),
-        amount=total_amount,
+        amount=float(str(total_amount)),
+        methodId=vnpay_method.methodId,
         status=payment_status.statusId)
     
     db.add(new_payment_order)
     await db.commit()
     await db.refresh(new_payment_order)
-    return { 
+    
+    return {
         "message": "Payment order created successfully",
-        'id':  new_payment_order.paymentId
+        "id": new_payment_order.paymentId,
+    }
+
+async def payOrder(data: PayOrderData, request: Request, db: AsyncSession = Depends(database.get_session)):
+    ip_address = request.client.host
+    exiting_payment = await db.execute(select(Payment).filter(Payment.paymentId == data.paymentId))
+    payment = exiting_payment.scalars().first()
+    
+    if payment is None:
+        return { 
+            "message": "Payment order not exists",
+            'id':  None,
+            "redirect_url": None
+        }
+
+    # Get "VNPAY" method
+    method_res = await db.execute(select(PaymentMethod).filter(PaymentMethod.methodName == "VNPAY"))
+    vnpay_method = method_res.scalars().first()
+
+    # Get payment status "Pending"
+    status_res = await db.execute(select(PaymentStatus).filter(PaymentStatus.code == "Pending"))
+    paid_status = status_res.scalars().first()
+
+    if (vnpay_method.methodId == data.methodId):
+        # Init vnpay 
+        vnpay = VNPAY(
+            tmn_code=settings.VNPAY_TMN_CODE,
+            hash_secret=settings.VNPAY_HASH_SECRET_KEY,
+            base_url=settings.VNPAY_PAYMENT_URL
+        )
+        # Generate VNPAY payment URL
+        payment_url = vnpay.generate_payment_url(
+            payment_id=payment.paymentId,
+            amount=float(str(payment.amount)),
+            return_url=settings.VNPAY_RETURN_URL,
+            ip_address=ip_address
+        )
+        # Update payment status
+        update_data = PaymentOrderUpdate(
+            status=paid_status.statusId if paid_status else None
+        )
+
+        await updatePaymentOrder(payment.paymentId, payment_data=update_data, db=db)
+
+    return {
+        "message": "Payment URL created successfully",
+        "id": payment.paymentId,
+        "redirect_url": payment_url or None
     }
 
 async def updatePaymentOrder(payment_id: uuid.UUID, payment_data: PaymentOrderUpdate, db: AsyncSession = Depends(database.get_session)):
