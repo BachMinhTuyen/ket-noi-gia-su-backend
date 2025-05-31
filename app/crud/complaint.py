@@ -124,6 +124,17 @@ async def getAllComplaintTypes(db: AsyncSession = Depends(database.get_session),
         "data": data
     }
 
+async def getComplaintTypesById(type_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+
+    result = await db.execute(select(ComplaintType)
+                            .filter(ComplaintType.complaintTypeId == type_id)
+                            .order_by(ComplaintType.name))
+
+    data = result.scalars().first()
+
+    return data
+
+
 async def createComplaintType(complaint_type_data: ComplaintTypeCreate, db: AsyncSession = Depends(database.get_session)):
     # Create new complaint
     new_complaint_type = ComplaintType(**complaint_type_data.dict())

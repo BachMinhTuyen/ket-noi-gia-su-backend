@@ -13,6 +13,11 @@ async def get_all_complaint_types(db: AsyncSession = Depends(database.get_sessio
     result = await complaint.getAllComplaintTypes(db, page, limit)
     return result
 
+@router.get("/get-by-id/{type_id}", response_model=ComplaintTypeOut)
+async def get_complaint_type_by_id(type_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    result = await complaint.getComplaintTypesById(type_id, db)
+    return result
+
 @router.post('/create', response_model=MessageResponseWithId)
 async def create_complaint_type(complaint_type_data: ComplaintTypeCreate, db: AsyncSession = Depends(database.get_session)):
     result = await complaint.createComplaintType(complaint_type_data, db)
