@@ -214,7 +214,7 @@ CREATE TABLE "Complaint" (
   "complaintTypeId" UUID,
   "title" VARCHAR(100),
   "content" TEXT,
-  "resolution_note" TEXT,
+  "resolutionNote" TEXT,
   "status" VARCHAR(50),
   "createdAt" TIMESTAMPTZ
 );
