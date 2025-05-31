@@ -18,6 +18,7 @@ class StudentProfileIn(BaseModel):
         from_attributes = True
 
 class StudentProfileOut(BaseModel):
+    userId: uuid.UUID
     studentId: uuid.UUID
     gradeLevel: Optional[str]
     learningGoals: Optional[str]
@@ -43,6 +44,7 @@ class TutorProfileIn(BaseModel):
         from_attributes = True
 
 class TutorProfileOut(BaseModel):
+    userId: uuid.UUID
     tutorId: uuid.UUID
     degree: Optional[str] = None
     certificate: Optional[str] = None
