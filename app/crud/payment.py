@@ -19,7 +19,30 @@ async def getAllPaymentOrders(db: AsyncSession = Depends(database.get_session), 
     total_result = await db.execute(select(func.count()).select_from(Payment))
     total_items = total_result.scalar()
 
-    result = await db.execute(select(Payment).order_by(Payment.registrationId).offset(offset).limit(limit))
+    result = await db.execute(select(Payment).order_by(Payment.registrationId.desc()).offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllPaymentOrdersByStatus(status_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count()).select_from(Payment))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(Payment)
+                            .filter(Payment.status == status_id)
+                            .order_by(Payment.registrationId.desc())
+                            .offset(offset).limit(limit))
 
     data = result.scalars().all()
     total_pages = (total_items + limit - 1) // limit

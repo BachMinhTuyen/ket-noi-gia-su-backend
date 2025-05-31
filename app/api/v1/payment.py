@@ -18,6 +18,11 @@ async def get_all_payment_orders(db: AsyncSession = Depends(database.get_session
     result = await payment.getAllPaymentOrders(db, page, limit)
     return result
 
+@router.get("/get-by-status/{status_id}", response_model=PaginatedPaymentOrderResponse)
+async def get_all_payment_orders(status_id:uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await payment.getAllPaymentOrdersByStatus(status_id, db, page, limit)
+    return result
+
 @router.get("/get-by-id/{payment_registration_id}", response_model=PaymentOrderOut)
 async def get_payment_order_by_payment_id_or_registation_id(payment_registration_id, db: AsyncSession = Depends(database.get_session)):
     result = await payment.getPaymentOrderById(payment_registration_id, db)
