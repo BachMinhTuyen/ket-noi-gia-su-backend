@@ -41,10 +41,37 @@ async def getAllPaymentOrdersByStatus(status_id: uuid.UUID, db: AsyncSession = D
 
     result = await db.execute(select(Payment)
                             .filter(Payment.status == status_id)
-                            .order_by(Payment.registrationId.desc())
+                            .order_by(Payment.paidAt.desc())
                             .offset(offset).limit(limit))
 
     data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllPaymentOrdersByUser(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count()).select_from(Payment)
+                                    .join(ClassRegistration)
+                                    .filter(ClassRegistration.studentId == user_id))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(Payment)
+                            .join(ClassRegistration)
+                            .filter(ClassRegistration.studentId == user_id)
+                            .order_by(Payment.paidAt.desc())
+                            .offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    print(data)
     total_pages = (total_items + limit - 1) // limit
 
     return {
