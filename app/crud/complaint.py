@@ -29,6 +29,29 @@ async def getAllComplaints(db: AsyncSession = Depends(database.get_session), pag
         "data": data
     }
 
+async def getAllComplaintsByUser(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+
+    offset = (page - 1) * limit
+
+    total_result = await db.execute(select(func.count()).select_from(Complaint))
+    total_items = total_result.scalar()
+
+    result = await db.execute(select(Complaint).filter(Complaint.userId == user_id)
+                            .order_by(Complaint.createdAt.desc())
+                            .offset(offset).limit(limit))
+
+    data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
 async def getAllComplaintsByStatus(status_name: str, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
 
     offset = (page - 1) * limit

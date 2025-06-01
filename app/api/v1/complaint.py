@@ -18,6 +18,11 @@ async def get_all_complaints_by_status_id (status_name: str, db: AsyncSession = 
     result = await complaint.getAllComplaintsByStatus(status_name, db, page, limit)
     return result
 
+@router.get("/get-by-user/{user_id}", response_model=PaginatedComplaintResponse)
+async def get_all_complaints_by_user_id(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    result = await complaint.getAllComplaintsByUser(user_id, db, page, limit)
+    return result
+
 @router.get("/get-by-id/{complaint_id}", response_model=ComplaintOut)
 async def get_complainte_by_complaint_id(complaint_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await complaint.getComplaintById(complaint_id, db)
