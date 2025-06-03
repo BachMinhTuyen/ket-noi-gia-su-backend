@@ -347,11 +347,8 @@ async def createClassRegistration(registration_data: ClassRegistrationCreate, db
     await db.commit()
     await db.refresh(new_class_registration)
 
-    payment_data = {
-        "registrationId": new_class_registration.registrationId
-    }
     # Create invoice
-    await createPaymentOrder(payment_data, db)
+    await createPaymentOrder(new_class_registration.registrationId, db)
     
     return { 
         'message' : 'Class registration created successfully',

@@ -15,7 +15,7 @@ async def get_all_subjects(db: AsyncSession = Depends(database.get_session), pag
         raise HTTPException(status_code=404, detail="No subjects found")
     return result
 
-@router.get('/get-by-id', response_model=SubjectOut)
+@router.get('/get-by-id/{subject_id}', response_model=SubjectOut)
 async def get_subject_by_id(subject_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await getSubjectById(subject_id, db)
     if not result:

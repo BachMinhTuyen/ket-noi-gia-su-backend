@@ -94,9 +94,8 @@ async def getPaymentOrderById(payment_registration_id: uuid.UUID, db: AsyncSessi
     data = res.scalars().first()
     return data
 
-async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession = Depends(database.get_session)):
-
-    exiting_payment = await db.execute(select(Payment).filter(Payment.registrationId == payment_data.registrationId))
+async def createPaymentOrder(registrationId: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    exiting_payment = await db.execute(select(Payment).filter(Payment.registrationId == registrationId))
     result = exiting_payment.scalars().first()
     if result:
         return { 
@@ -110,7 +109,7 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
 
     # Get class registration
     registration_res = await db.execute(
-        select(ClassRegistration).filter(ClassRegistration.registrationId == payment_data.registrationId)
+        select(ClassRegistration).filter(ClassRegistration.registrationId == registrationId)
     )
     registration = registration_res.scalars().first()
 
@@ -134,6 +133,9 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
     start_dt = datetime.combine(today, schedule_obj.startTime)
     end_dt = datetime.combine(today, schedule_obj.endTime)
 
+    print(start_dt)
+    print(end_dt)
+
     duration = end_dt - start_dt  # timedelta type
     hours = duration.total_seconds() / 3600
     hours_decimal = Decimal(str(hours))
@@ -143,7 +145,7 @@ async def createPaymentOrder(payment_data: PaymentOrderCreate, db: AsyncSession 
 
     # Create new payment order
     new_payment_order = Payment(
-        **payment_data.dict(),
+        registrationId=registrationId,
         amount=float(str(total_amount)),
         methodId=vnpay_method.methodId,
         status=payment_status.statusId)

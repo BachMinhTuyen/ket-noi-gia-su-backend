@@ -51,6 +51,7 @@ class TutorProfileOut(BaseModel):
     experience: Optional[str] = None
     description: Optional[str] = None
     introVideoUrl: Optional[str] = None
+    isApproved: Optional[bool] = None
 
     class Config:
         from_attributes = True
