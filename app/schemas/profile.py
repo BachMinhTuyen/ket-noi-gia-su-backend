@@ -9,10 +9,10 @@ class PaginationMeta(BaseModel):
 
 # Student Profile Schemas
 class StudentProfileIn(BaseModel):
-    gradeLevel: Optional[str]
-    learningGoals: Optional[str]
-    preferredStudyTime: Optional[str]
-    description: Optional[str]
+    gradeLevel: Optional[str] = None
+    learningGoals: Optional[str] = None
+    preferredStudyTime: Optional[str] = None
+    description: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -20,10 +20,10 @@ class StudentProfileIn(BaseModel):
 class StudentProfileOut(BaseModel):
     userId: uuid.UUID
     studentId: uuid.UUID
-    gradeLevel: Optional[str]
-    learningGoals: Optional[str]
-    preferredStudyTime: Optional[str]
-    description: Optional[str]
+    gradeLevel: Optional[str] = None
+    learningGoals: Optional[str] = None
+    preferredStudyTime: Optional[str] = None
+    description: Optional[str] = None
 
     class Config:
         from_attributes = True

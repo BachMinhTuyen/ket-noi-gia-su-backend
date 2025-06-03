@@ -33,10 +33,10 @@ async def get_payment_order_by_payment_id_or_registation_id(payment_registration
     result = await payment.getPaymentOrderById(payment_registration_id, db)
     return result
 
-@router.post('/create', response_model=MessageResponseWithId)
-async def create_payment_order(payment_data: PaymentOrderCreate, db: AsyncSession = Depends(database.get_session)):
-    result = await payment.createPaymentOrder(payment_data, db)
-    return result
+# @router.post('/create', response_model=MessageResponseWithId)
+# async def create_payment_order(payment_data: PaymentOrderCreate, db: AsyncSession = Depends(database.get_session)):
+#     result = await payment.createPaymentOrder(payment_data, db)
+#     return result
 
 @router.post('/pay-order', response_model=MessageResponseWithIdAndRedirect)
 async def pay_order(data: PayOrderData, request: Request, db: AsyncSession = Depends(database.get_session)):

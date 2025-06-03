@@ -34,7 +34,9 @@ async def create_address(address_data: AddressCreate, db: AsyncSession = Depends
             address_data.latitude = location["latitude"]
             address_data.longitude = location["longitude"]
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Geocoding failed: {str(e)}")
+        # except Exception as e:
+            # raise HTTPException(status_code=400, detail=f"Geocoding failed: {str(e)}")
+            address_data = address_data
 
     result = await address.createAddress(address_data, db)
     return result

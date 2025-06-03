@@ -98,7 +98,10 @@ async def updateStudentProfile(user_id: uuid.UUID, profile_data: StudentProfileI
     profile = result.scalars().first()
     
     if not profile:
-        return HTTPException(status_code=404, detail="Profile not found")
+        return ResponseWithMessage(
+            message="Profile not found",
+            data=None
+        )
 
     for key, value in profile_data.dict(exclude_unset=True).items():
         setattr(profile, key, value)

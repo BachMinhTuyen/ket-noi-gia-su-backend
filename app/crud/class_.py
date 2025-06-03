@@ -1,3 +1,4 @@
+from app.crud.payment import createPaymentOrder
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
@@ -6,7 +7,7 @@ import uuid
 from app.core.similarity import compute_cosine_similarity, find_matching_subject
 from app.core.distance import haversine
 from app.core.database import database
-from app.models import Class, Schedule, Address, Evaluation, ClassRegistration, Subject, TutorProfile
+from app.models import Class, Schedule, Address, Evaluation, ClassRegistration, Subject, TutorProfile, User, Role
 from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut, ClassSearchInput
 from app.schemas.response import ResponseWithMessage
 
@@ -95,6 +96,51 @@ async def getAllClass(db: AsyncSession = Depends(database.get_session), page: in
     result = await db.execute(select(Class).offset(offset).limit(limit))
     
     data = result.scalars().all()
+    total_pages = (total_items + limit - 1) // limit
+    
+    return {
+        "pagination": {
+            "currentPage": page,
+            "totalPages": total_pages,
+            "totalItems": total_items
+        },
+        "data": data
+    }
+
+async def getAllClassByUser(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session), page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+
+    # Get user
+    user_result = await db.execute(select(User).filter(User.userId == user_id))
+    user = user_result.scalars().first()
+    if not user:
+        return {"message": "User not found"}
+    
+    # Get user role
+    role_result = await db.execute(select(Role).filter(Role.roleId == user.roleId))
+    role = role_result.scalars().first()
+    if not role:
+        return {"message": "Role not found"}
+    
+    if role.roleName == "Tutor":
+        total_result = await db.execute(select(func.count())
+                                    .select_from(Class)
+                                    .filter(Class.tutorId == user_id))
+        total_items = total_result.scalar()
+        result = await db.execute(select(Class).filter(Class.tutorId == user_id).offset(offset).limit(limit))
+        data = result.scalars().all()
+    else:
+        total_result = await db.execute(select(func.count())
+                                    .select_from(Class)
+                                    .join(ClassRegistration)
+                                    .filter(ClassRegistration.studentId == user_id))
+        total_items = total_result.scalar()
+        result = await db.execute(select(Class)
+                                .join(ClassRegistration)
+                                .filter(ClassRegistration.studentId == user_id)
+                                .offset(offset).limit(limit))
+        data = result.scalars().all()
+    
     total_pages = (total_items + limit - 1) // limit
     
     return {
@@ -300,6 +346,13 @@ async def createClassRegistration(registration_data: ClassRegistrationCreate, db
     db.add(new_class_registration)
     await db.commit()
     await db.refresh(new_class_registration)
+
+    payment_data = {
+        "registrationId": new_class_registration.registrationId
+    }
+    # Create invoice
+    await createPaymentOrder(payment_data, db)
+    
     return { 
         'message' : 'Class registration created successfully',
         'id':  new_class_registration.registrationId
