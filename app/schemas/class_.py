@@ -57,6 +57,9 @@ class ClassUpdate(BaseModel):
     maxStudents: Optional[int] = None
     status: Optional[uuid.UUID] = None
 
+    class Config:
+        from_attributes = True
+
 class PaginationMeta(BaseModel):
     currentPage: int
     totalPages: int
@@ -75,10 +78,15 @@ class MatchingClassResult(BaseModel):
     similarity: float
     matching_score: float
 
+    class Config:
+        from_attributes = True
+
 class MatchingClassResponse(BaseModel):
     results: Optional[List[MatchingClassResult]] = None
     message: Optional[str] = None
 
+    class Config:
+        from_attributes = True
 
 
 class ClassRegistrationOut(BaseModel):
@@ -87,10 +95,23 @@ class ClassRegistrationOut(BaseModel):
     studentId: uuid.UUID
     registrationDate: Optional[datetime] = None
 
+    class Config:
+        from_attributes = True
+
 class ClassRegistrationCreate(BaseModel):
     classId: uuid.UUID
     studentId: uuid.UUID
     registrationDate: datetime
+
+    class Config:
+        from_attributes = True
+
+class ClassRegistrationCreateWithUsername(BaseModel):
+    classId: uuid.UUID
+    username: str
+
+    class Config:
+        from_attributes = True
 
 class PaginatedClassRegistrationResponse(BaseModel):
     pagination: PaginationMeta

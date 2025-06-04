@@ -1,14 +1,15 @@
 from app.crud.payment import createPaymentOrder
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 import uuid
+from datetime import datetime
 
 from app.core.similarity import compute_cosine_similarity, find_matching_subject
 from app.core.distance import haversine
 from app.core.database import database
-from app.models import Class, Schedule, Address, Evaluation, ClassRegistration, Subject, TutorProfile, User, Role
-from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut, ClassSearchInput
+from app.models import Class, Schedule, Address, Evaluation, ClassRegistration, Subject, TutorProfile, User, Role, Payment, PaymentStatus
+from app.schemas.class_ import ClassCreate, ClassUpdate, ClassOut, ClassRegistrationCreate, ClassRegistrationOut, ClassSearchInput, ClassRegistrationCreateWithUsername
 from app.schemas.response import ResponseWithMessage
 
 async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depends(database.get_session)):
@@ -355,8 +356,68 @@ async def createClassRegistration(registration_data: ClassRegistrationCreate, db
         'id':  new_class_registration.registrationId
     }
 
+async def createClassRegistrationWithUsername(registration_data: ClassRegistrationCreateWithUsername, db: AsyncSession = Depends(database.get_session)):
+    # Get user
+    user_result = await db.execute(select(User).filter(User.username == registration_data.username))
+    user = user_result.scalars().first()
+    if not user:
+        return {
+            "message": "User not found",
+            "id": None
+        }
+    
+    existing_registration = await db.execute(select(ClassRegistration).filter(
+        and_(
+            ClassRegistration.classId == registration_data.classId,
+            ClassRegistration.studentId == user.userId
+        )
+    ))
+    result = existing_registration.scalars().first()
+
+    if result:
+        return { 
+            'message' : 'Class registration already exists.',
+            'id':  None
+        }
+
+    new_class_registration = ClassRegistration(
+        classId = registration_data.classId,
+        studentId = user.userId,
+        registrationDate = datetime.now()
+    )
+    db.add(new_class_registration)
+    await db.commit()
+    await db.refresh(new_class_registration)
+
+    # Create invoice
+    await createPaymentOrder(new_class_registration.registrationId, db)
+    
+    return { 
+        'message' : 'Class registration created successfully',
+        'id':  new_class_registration.registrationId
+    }
+
 
 async def deleteClassRegistration(registration_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
+    payment_status_result = await db.execute(select(PaymentStatus).filter(PaymentStatus.code == "Unpaid"))
+    payment_status = payment_status_result.scalars().first()
+    if not payment_status:
+        return HTTPException(status_code=400, detail="Payment status not found!")
+
+    existing_invoice = await db.execute(select(Payment)
+                                    .filter(
+                                        and_(
+                                            Payment.registrationId == registration_id,
+                                            Payment.status == payment_status.statusId
+                                        )
+                                    ))
+    invoice = existing_invoice.scalars().first()
+    if invoice:
+        await db.delete(invoice)
+        await db.commit()
+    else:
+        return HTTPException(status_code=400, detail="Invoice not found!")
+
     existing_status = await db.execute(select(ClassRegistration).filter(ClassRegistration.registrationId == registration_id))
     result = existing_status.scalars().first()
     if not result:
