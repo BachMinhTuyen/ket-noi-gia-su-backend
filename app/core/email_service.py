@@ -31,7 +31,7 @@ async def send_verification_email(
     user_id: uuid.UUID,
     background_tasks: BackgroundTasks,
     ) -> JSONResponse:
-    verification_link = f"{settings.FRONTEND_URL}/activate/{user_id}"
+    verification_link = f"{settings.FRONTEND_URL or 'http://26.207.220.76:3000'}/activate/{user_id}"
     html = f"""
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         <div style="text-align: center; padding: 20px 0; background-color: #1e88e5; border-radius: 12px 12px 0 0; color: #ffffff;">
