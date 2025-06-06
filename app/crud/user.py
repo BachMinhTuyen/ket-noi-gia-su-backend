@@ -144,7 +144,10 @@ async def createUser(user_data: UserRegistration, db: AsyncSession = Depends(dat
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return {"message": "User created successfully"}
+    return {
+        "message": "User created successfully",
+        "id": user.userId
+    }
 
 async def activateUser(user_id: uuid.UUID, db: AsyncSession = Depends(database.get_session)):
     result = await db.execute(select(User).filter(User.userId == user_id).options(selectinload(User.role)))

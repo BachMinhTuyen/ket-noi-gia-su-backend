@@ -41,10 +41,6 @@ async def create_class(class_data: ClassCreate, db: AsyncSession = Depends(datab
 
 @router.put('/update/{class_id}',  response_model=ResponseWithMessage)
 async def update_class(class_id: uuid.UUID, class_data: ClassUpdate, db: AsyncSession = Depends(database.get_session)):
-    print('-------------------------'   )
-    print(class_id)
-    print(class_data)
-    print('-------------------------')
     result = await class_.updateClass(class_id, class_data, db)
     return result
 

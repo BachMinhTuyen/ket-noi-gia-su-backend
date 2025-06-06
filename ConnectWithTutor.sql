@@ -42,7 +42,7 @@ CREATE TABLE "User" (
   "fullName" VARCHAR(50) NOT NULL,
   "birthDate" DATE,
   "phoneNumber" VARCHAR(20),
-  "address" VARCHAR(50),
+  "address" TEXT,
   "email" VARCHAR(50),
   "avatarUrl" TEXT,
   "averageRating" DECIMAL(3,2) DEFAULT 5,

@@ -42,7 +42,9 @@ async def find_matching_subject(keyword: str, subjects: list) -> Optional[Subjec
         if score > best_score:
             best_score = score
             best_subject = subj
-
+    print('-------------------------'   )
+    print(f"{best_subject.subjectName_vi} - {best_score}")
+    print('-------------------------')
     if best_score >= 0.6:
         return best_subject
     return None

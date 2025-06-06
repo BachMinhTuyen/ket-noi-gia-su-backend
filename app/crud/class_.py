@@ -59,7 +59,10 @@ async def findBestClasses(search_data: ClassSearchInput, db: AsyncSession = Depe
             select(TutorProfile).filter(TutorProfile.userId == c.tutorId)
         )
         tutor = tutor_result.scalars().first()
-        description = f"{tutor.description} {c.className_vi} {c.className_en} {c.description}"
+        if (tutor):
+            description = f"{tutor.description} {c.className_vi} {c.className_en} {c.description}"
+        else:
+            description = f"{c.className_vi} {c.className_en} {c.description}"
         similarity_score = await compute_cosine_similarity(description, keyword)
 
         # Suppose 10km is far

@@ -8,13 +8,13 @@ from app.core.security import create_access_token, verify_password, decode_acces
 from app.core.config import settings
 from app.models import User
 from app.schemas.user import Token, UserLogin, UserRegistration
-from app.schemas.response import MessageResponse
+from app.schemas.response import MessageResponseWithId
 from app.crud.user import createUser
 from app.core.email_service import EmailSchema, send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["Authorization"])
 
-@router.post("/register", response_model=MessageResponse)
+@router.post("/register", response_model=MessageResponseWithId)
 async def register(data: UserRegistration, background_tasks: BackgroundTasks, db:AsyncSession = Depends(database.get_session)):
     result = await createUser(data, db)
     # Get new_user after new user is saved to database
@@ -24,7 +24,7 @@ async def register(data: UserRegistration, background_tasks: BackgroundTasks, db
     await send_verification_email(EmailSchema(email=[data.email]), new_user.userId, background_tasks)
     return result
 
-@router.post("/registration-for-admin-role", response_model=MessageResponse)
+@router.post("/registration-for-admin-role", response_model=MessageResponseWithId)
 async def registration_is_for_admin_role(data: UserRegistration, db:AsyncSession = Depends(database.get_session)):
     result = await createUser(data, db)
     return result
