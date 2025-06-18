@@ -21,7 +21,6 @@ class EvaluationOut(BaseModel):
 class EvaluationCreate(BaseModel):
     classId: uuid.UUID
     fromUserId: uuid.UUID
-    toUserId: uuid.UUID
     criteria1: Optional[int] = None
     criteria2: Optional[int] = None
     criteria3: Optional[int] = None

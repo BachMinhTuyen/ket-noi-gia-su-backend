@@ -1,4 +1,5 @@
 import datetime
+from app.models.class_ import Class
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
@@ -78,10 +79,16 @@ async def createEvaluation(evaluation_data: EvaluationCreate, db: AsyncSession =
             "message": "Evaluation already exists for this class and user",
             "id": None
         }
+    # Get tutorId from classId
+    class_query = await db.execute(select(Class).filter(Class.classId == evaluation_data.classId))
+    current_class = class_query.scalars().first()
 
     # Create new evaluation
-    new_evaluation = Evaluation(**evaluation_data.dict())
-
+    new_evaluation = Evaluation(
+        **evaluation_data.dict(),
+        toUserId=current_class.tutorId
+    )
+    
     db.add(new_evaluation)
     await db.commit()
     await db.refresh(new_evaluation)
