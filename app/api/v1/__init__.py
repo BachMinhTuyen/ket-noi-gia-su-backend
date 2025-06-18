@@ -19,6 +19,7 @@ from . import (
     statistics,
     complaint,
     complaint_type,
+    evaluation,
 )
 
 router = APIRouter()
@@ -41,3 +42,4 @@ router.include_router(payment_method.router)
 router.include_router(address.router)
 router.include_router(complaint.router)
 router.include_router(complaint_type.router)
+router.include_router(evaluation.router)
