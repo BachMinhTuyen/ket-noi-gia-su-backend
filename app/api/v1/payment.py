@@ -1,5 +1,6 @@
 from app.deps.vnpay_utils import VNPAY
 from fastapi import APIRouter, Depends, Query, Request, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import database
 from app.core.config import settings
@@ -103,16 +104,20 @@ async def vnpay_return(request: Request, db: AsyncSession = Depends(database.get
 
     await payment.updatePaymentOrder(payment_id=payment_id, payment_data=update_data, db=db)
 
-    return {
-        "status": "success",
-        "message": "Payment successful",
-        "vnp_ResponseCode": vnp_response_code,
-        "payment_id": str(payment_id),
-        "vnp_OrderInfo": query_params.get("vnp_OrderInfo"),
-        "vnp_Amount": query_params.get("vnp_Amount"),
-        "vnp_BankCode": query_params.get("vnp_BankCode"),
-        "vnp_PayDate": query_params.get("vnp_PayDate"),
-    }
+    # return {
+    #     "status": "success",
+    #     "message": "Payment successful",
+    #     "vnp_ResponseCode": vnp_response_code,
+    #     "payment_id": str(payment_id),
+    #     "vnp_OrderInfo": query_params.get("vnp_OrderInfo"),
+    #     "vnp_Amount": query_params.get("vnp_Amount"),
+    #     "vnp_BankCode": query_params.get("vnp_BankCode"),
+    #     "vnp_PayDate": query_params.get("vnp_PayDate"),
+    # }
+    return RedirectResponse(
+        url=f"{settings.FRONTEND_URL}vi/successful-transaction",
+        status_code=303
+    )
 
 @router.put('/update/{payment_id}', response_model=ResponseWithMessage)
 async def update_payment_order(payment_id: uuid.UUID, payment_data: PaymentOrderUpdate, db: AsyncSession = Depends(database.get_session)):
