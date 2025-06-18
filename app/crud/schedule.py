@@ -5,7 +5,7 @@ from datetime import timedelta
 import uuid
 
 from app.core.database import database
-from app.models import Class, Schedule, ScheduleStatus
+from app.models import Class, Schedule, ScheduleStatus, ClassRegistration
 from app.schemas.schedule import BulkScheduleCreate, ScheduleCreate, ScheduleUpdate, ScheduleOut
 from app.schemas.response import ResponseWithMessage
 from app.deps.time_utils import normalize_time
@@ -72,18 +72,6 @@ async def createSchedule(schedule_data: ScheduleCreate, db: AsyncSession):
             Class.tutorId == tutor_id,
             Schedule.dayStudying == schedule_data.dayStudying,
             or_(
-                and_(
-                    schedule_data.startTime < Schedule.endTime,
-                    schedule_data.endTime > Schedule.startTime
-                )
-            )
-        )
-    )
-    conflict_query = select(Schedule).join(Class).filter(
-        and_(
-            Class.tutorId == tutor_id,
-            Schedule.dayStudying == schedule_data.dayStudying,
-            or_(
                 # Case 1: new_start <= existing_end and new_end >= existing_start
                 and_(
                     startTime <= Schedule.endTime,
@@ -106,6 +94,37 @@ async def createSchedule(schedule_data: ScheduleCreate, db: AsyncSession):
             "message": "Tutor already has a schedule at this time",
             'id':  None
         }
+    
+    
+    # Check conflict schedule of students in this day
+    registrations = await db.execute(
+        select(ClassRegistration).filter(ClassRegistration.classId == schedule_data.classId)
+    )
+    registrations = registrations.scalars().all()
+    for registration in registrations:
+        student_conflict_query = select(Schedule).join(Class).join(ClassRegistration).filter(
+            and_(
+                ClassRegistration.studentId == registration.studentId,
+                Schedule.dayStudying == schedule_data.dayStudying,
+                or_(
+                    and_(
+                        startTime <= Schedule.endTime,
+                        endTime >= Schedule.startTime
+                    ),
+                    and_(
+                        startTime == Schedule.endTime,
+                        endTime == Schedule.startTime
+                    )
+                )
+            )
+        )
+        conflict_result = await db.execute(student_conflict_query)
+        conflict = conflict_result.scalars().first()
+        if conflict:
+            return {
+                "message": f"Student {registration.studentId} already has a schedule at this time",
+                "id": None
+            }
 
     # Create new schedule
     new_schedule = Schedule(

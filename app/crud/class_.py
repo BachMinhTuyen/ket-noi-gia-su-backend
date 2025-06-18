@@ -1,7 +1,8 @@
 from app.crud.payment import createPaymentOrder
+from app.deps.time_utils import normalize_time
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, or_
 import uuid
 from datetime import datetime
 
@@ -345,6 +346,46 @@ async def createClassRegistration(registration_data: ClassRegistrationCreate, db
             'message' : 'Class registration already exists.',
             'id':  None
         }
+    # Get schedule data of this class
+    schedule_data = await db.execute(select(Schedule).filter(Schedule.classId == registration_data.classId))
+    schedule_data = schedule_data.scalars().first()
+    if not schedule_data:
+        return {
+            "message": "Class does not have any schedule",
+            "id": None
+        }
+    # Normalize start and end time
+    startTime = normalize_time(schedule_data.startTime)
+    endTime = normalize_time(schedule_data.endTime)
+    # Check conflict schedule of students in this day
+    registrations = await db.execute(
+        select(ClassRegistration).filter(ClassRegistration.classId == registration_data.classId)
+    )
+    registrations = registrations.scalars().all()
+    for registration in registrations:
+        student_conflict_query = select(Schedule).join(Class).join(ClassRegistration).filter(
+            and_(
+                ClassRegistration.studentId == registration.studentId,
+                Schedule.dayStudying == schedule_data.dayStudying,
+                or_(
+                    and_(
+                        startTime <= Schedule.endTime,
+                        endTime >= Schedule.startTime
+                    ),
+                    and_(
+                        startTime == Schedule.endTime,
+                        endTime == Schedule.startTime
+                    )
+                )
+            )
+        )
+        conflict_result = await db.execute(student_conflict_query)
+        conflict = conflict_result.scalars().first()
+        if conflict:
+            return {
+                "message": f"Student {registration.studentId} already has a schedule at this time",
+                "id": None
+            }
 
     new_class_registration = ClassRegistration(**registration_data.dict())
     db.add(new_class_registration)
